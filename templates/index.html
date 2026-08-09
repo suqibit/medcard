@@ -66,6 +66,19 @@
   .quiz-res.bad{color:var(--danger)}
   .rev-doubt{border:1.5px solid var(--danger);background:#F3DED6;color:var(--danger);padding:8px 14px;font-size:12.5px;margin-bottom:12px;line-height:1.6}
   .rev-source{margin-top:10px;font-size:11.5px;color:var(--sub);border-left:3px solid var(--line);padding-left:10px;line-height:1.7}
+  /* 新手引导 */
+  #tourMask{position:fixed;inset:0;background:rgba(35,33,28,.62);z-index:1000;backdrop-filter:blur(2px)}
+  .tour-card{position:fixed;z-index:1002;max-width:320px;background:#F7EFDA;border:2px solid var(--accent);border-radius:10px;box-shadow:0 14px 40px rgba(0,0,0,.35);padding:16px 18px}
+  .tour-title{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:8px}
+  .tour-desc{font-size:12.5px;color:var(--sub);line-height:1.75}
+  .tour-foot{display:flex;align-items:center;justify-content:space-between;margin-top:14px}
+  .tour-dots{display:flex;gap:6px}
+  .tour-dots i{width:7px;height:7px;border-radius:50%;background:var(--line);display:inline-block}
+  .tour-dots i.on{background:var(--accent)}
+  .tour-btns{display:flex;gap:10px}
+  .tour-skip{background:none;border:none;color:var(--sub);font-size:12px;cursor:pointer;font-family:inherit;padding:6px 4px}
+  .tour-next{background:var(--accent);color:#F7EFDA;border:none;padding:7px 18px;font-size:13px;cursor:pointer;font-family:inherit;border-radius:6px}
+  .tour-target{position:relative;z-index:1001;box-shadow:0 0 0 4px var(--accent),0 0 0 8px rgba(73,120,94,.35);border-radius:4px}
   .tagmgmt{margin-bottom:16px}
   .tagchips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
   .tagchip{border:1px solid var(--line);background:transparent;color:var(--ink);padding:4px 12px;font-size:12px;cursor:pointer;font-family:inherit}
@@ -231,7 +244,34 @@
     width:100%;border:1px solid var(--line);background:#F3EAD2;padding:6px 8px;
     font-size:12px;font-family:inherit;margin-bottom:8px;
   }
-  @media(max-width:520px){.page{padding:32px 16px 60px}.masthead h1{font-size:26px}.row{flex-direction:column;align-items:stretch}.btn{width:100%}.rates{flex-wrap:wrap}.rate{min-width:44%}}
+  @media(max-width:520px){
+    .page{padding:24px 14px 60px}
+    .masthead h1{font-size:26px}
+    .row{flex-direction:column;align-items:stretch}
+    .btn{width:100%}
+    .rates{flex-wrap:wrap}.rate{min-width:44%}
+    .masthead{padding:22px 0 14px}
+    .masthead .sub{font-size:12px}
+    .tabs .tab{padding:12px 0;font-size:13.5px}
+    .sheet{padding:16px 14px}
+    .text-area{min-height:130px;font-size:14px;padding:12px}
+    .rev-card{padding:16px 14px}
+    .rev-front{font-size:15px;line-height:1.7}
+    .rev-back{font-size:13.5px;line-height:1.75}
+    .quiz-opt{padding:12px 14px;font-size:14px}
+    .tagchip{padding:6px 12px;font-size:12.5px}
+    .tagpick .tagchip{font-size:11.5px}
+    .setrow{flex-direction:column;align-items:stretch;gap:6px}
+    .setrow input{width:100%!important}
+    .manage-btns{flex-direction:column;gap:8px}
+    .manage-btns .btn-ghost{width:100%}
+    .tour-card{left:12px!important;right:12px;max-width:none;width:auto}
+    .status{font-size:12.5px}
+    .quiz-toggle .qt{padding:6px 14px}
+    .weak-item{flex-wrap:wrap;padding:10px 12px}
+    .w-name{min-width:70px}
+    .rec-link{margin-left:0;display:inline-block;margin-top:6px}
+  }
 </style>
 </head>
 <body>
@@ -1146,6 +1186,58 @@ importFile.onchange=async e=>{
     DB=await idbOpen();
     await refreshReview();
   }catch(e){rvStat.textContent='本地存储不可用（可能处于无痕/隐私模式）：抽卡功能正常，但「网页复习/保存」不可用';}
+})();
+
+/* ========== 新手引导（首次访问，4 步，可跳过） ========== */
+(function(){
+  if(localStorage.getItem('mc_tour_done'))return;
+  const steps=[
+    {sel:'#textArea',pos:'below',title:'① 粘贴你的材料',desc:'把教材、讲义或做错的题粘贴到这里；也可以点上方「+ 上传」传 PDF / Word / 截图（截图自动 AI 识别）'},
+    {sel:'.mode-switch',pos:'below',title:'② 选一种模式',desc:'「教材抽卡」整段学新知识；「错题制卡」把做错的题变成记忆卡，下次不再错'},
+    {sel:'#genBtn',pos:'above',title:'③ 生成卡片',desc:'AI 把材料抽成一张张原子卡，每张都带答案、解析、选择题版和原文来源，方便你对照核实'},
+    {sel:'.tabs',pos:'below',title:'④ 每天复习',desc:'学完的卡会按记忆曲线自动安排，每天点「开始复习」，10 分钟就够。断几天也能从断点接着学'}
+  ];
+  const m=document.createElement('div');
+  m.id='tourMask';
+  m.innerHTML=`<div class="tour-card">
+    <div class="tour-body"><p class="tour-title"></p><p class="tour-desc"></p></div>
+    <div class="tour-foot"><span class="tour-dots"></span><span class="tour-btns"><button class="tour-skip">跳过</button><button class="tour-next">下一步</button></span></div>
+  </div>`;
+  document.body.appendChild(m);
+  const card=m.querySelector('.tour-card'),title=card.querySelector('.tour-title'),
+        desc=card.querySelector('.tour-desc'),dots=card.querySelector('.tour-dots'),
+        nextBtn=card.querySelector('.tour-next'),skipBtn=card.querySelector('.tour-skip');
+  let idx=0,lastEl=null;
+  function showStep(i){
+    idx=i;
+    const s=steps[i];
+    if(lastEl)lastEl.classList.remove('tour-target');
+    const el=document.querySelector(s.sel);
+    if(el){el.classList.add('tour-target');lastEl=el;}
+    title.textContent=s.title;desc.textContent=s.desc;
+    dots.innerHTML=steps.map((_,k)=>`<i class="${k===i?'on':''}"></i>`).join('');
+    nextBtn.textContent=i===steps.length-1?'开始使用':'下一步';
+    setTimeout(placeCard,30);
+  }
+  function placeCard(){
+    const s=steps[idx],el=document.querySelector(s.sel);
+    if(!el){card.style.top='20%';card.style.left='50%';card.style.transform='translateX(-50%)';return}
+    const r=el.getBoundingClientRect();
+    card.style.transform='';
+    if(s.pos==='above'){card.style.top=Math.max(12,r.top-card.offsetHeight-12)+'px';}
+    else{card.style.top=Math.min(window.innerHeight-card.offsetHeight-12,r.bottom+12)+'px';}
+    card.style.left=Math.max(12,Math.min(r.left,window.innerWidth-card.offsetWidth-12))+'px';
+  }
+  nextBtn.onclick=()=>{idx<steps.length-1?showStep(idx+1):finish();};
+  skipBtn.onclick=finish;
+  m.addEventListener('click',e=>{if(e.target===m)finish();});
+  function finish(){
+    localStorage.setItem('mc_tour_done','1');
+    if(lastEl)lastEl.classList.remove('tour-target');
+    m.remove();
+  }
+  window.addEventListener('resize',placeCard);
+  showStep(0);
 })();
 </script>
 </body>
