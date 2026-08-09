@@ -12,8 +12,6 @@ from flask import Flask, request, send_file, jsonify, render_template
 import genanki
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-OUT_DIR = os.path.join(BASE_DIR, "outputs")
-os.makedirs(OUT_DIR, exist_ok=True)
 
 DEEPSEEK_URL = "https://api.deepseek.com/v1/chat/completions"
 
