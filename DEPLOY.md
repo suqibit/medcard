@@ -26,16 +26,16 @@ git push -u origin main
    - `ZHIPU_API_KEY` = 你的智谱 key
 4. Deploy
 
-### 3. 绑定域名（suqiqinak.xyz）
-1. Vercel 项目 → Settings → Domains → Add `suqiqinak.xyz`
-2. 腾讯云 DNS 控制台 → 解析设置 → 添加记录：
+### 3. 绑定域名（medcard.icu）
+1. Vercel 项目 → Settings → Domains → Add `medcard.icu`（Vercel 会提示要加的 DNS 记录，通常是 `CNAME medcard.icu → cname.vercel-dns.com`）
+2. 域名 DNS 管理平台（medcard.icu 的购买平台）→ 解析设置 → 添加记录：
    - 主机记录 `@`，类型 `CNAME`，记录值 `cname.vercel-dns.com`
    - （如需 www 也加一条 `www` → CNAME → `cname.vercel-dns.com`）
 3. 等待生效（几分钟～几小时），Vercel 会自动签发 HTTPS
 
 ## 部署后验证清单
 
-- [ ] 打开 https://suqiqinak.xyz 首页正常（深卡其学术风）
+- [ ] 打开 https://medcard.icu 首页正常（深卡其学术风）
 - [ ] 粘贴教材 → 生成牌组 → **下载 .apkg** 能直接下载（Blob 直传，不再依赖服务器文件）
 - [ ] 错题制卡 → 传图片 → OCR 识别 → 复核 → 生成
 - [ ] 扫描件 PDF → 自动 AI 识别
