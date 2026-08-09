@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>复习记录 · 医学记忆卡</title>
+<style>
+  :root{
+    --bg:#E8D8B1; --card:#F7EFDA; --ink:#2B2924; --sub:#635C4B;
+    --line:#CFC2A2; --accent:#0E5A4A; --accent-soft:#DCE6DE; --rule:#C4B68F;
+    --warn:#A05A2C; --danger:#8C2F1E;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  [hidden]{display:none!important}
+  body{
+    background:var(--bg); color:var(--ink); font-family:"Noto Sans SC","Microsoft YaHei",sans-serif;
+    padding:34px 20px 60px; line-height:1.7;
+  }
+  .wrap{max-width:760px;margin:0 auto}
+  .masthead{border-bottom:2px solid var(--ink);padding-bottom:16px;margin-bottom:20px}
+  .masthead .top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .masthead h1{font-family:"Noto Serif SC",serif;font-size:26px;letter-spacing:2px;font-weight:700}
+  .masthead .sub{color:var(--accent);font-size:13px;margin-top:6px;letter-spacing:1px}
+  .back{color:var(--accent);text-decoration:none;font-size:13px;border:1px solid var(--accent);padding:5px 12px;display:inline-block;white-space:nowrap}
+  .back:hover{background:var(--accent);color:#F7EFDA}
+  .stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+  .stats .chip{border:1px solid var(--line);background:var(--card);padding:6px 14px;font-size:13px;color:var(--sub)}
+  .stats .chip b{color:var(--ink)}
+  .stats .chip .due-n{color:var(--danger)}
+  .list{display:flex;flex-direction:column;gap:14px}
+  .item{border:1.5px solid var(--line);background:var(--card);padding:18px 20px}
+  .item .front{font-size:15px;font-weight:600;margin-bottom:10px;line-height:1.6}
+  .item .meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;padding-top:10px;border-top:1px dashed var(--rule);font-size:12px;color:var(--sub)}
+  .item .meta span{white-space:nowrap}
+  .item .meta .due-tag{font-weight:700}
+  .due-now{color:var(--danger)}
+  .due-today{color:var(--warn)}
+  .due-later{color:var(--sub)}
+  .tags{margin-top:10px}
+  .tag{display:inline-block;border:1px solid var(--accent);color:var(--accent);font-size:11px;padding:1px 8px;margin-right:6px;background:var(--accent-soft)}
+  .btn{background:var(--accent);color:#F7EFDA;border:1px solid var(--accent);padding:6px 18px;font-size:13px;cursor:pointer;font-family:inherit}
+  .btn:hover{background:#0A473A}
+  .btn-ghost{background:transparent;color:var(--accent);border:1px solid var(--accent);padding:6px 18px;font-size:13px;cursor:pointer;font-family:inherit}
+  .btn-ghost:hover{background:var(--accent-soft)}
+  .item .ans{border-top:1px solid var(--rule);margin-top:12px;padding-top:12px;font-size:14px;color:var(--ink);white-space:pre-wrap;line-height:1.8}
+  .pager{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:26px}
+  .pager .info{font-size:13px;color:var(--sub)}
+  .empty{text-align:center;padding:60px 20px;color:var(--sub);border:1.5px dashed var(--line);background:var(--card)}
+  .empty a{color:var(--accent);text-decoration:underline}
+  .bar{height:3px;background:var(--line);overflow:hidden;margin-bottom:16px;display:none}
+  .bar i{display:block;height:100%;width:30%;background:var(--accent);animation:slide 1s linear infinite}
+  @keyframes slide{0%{transform:translateX(-100%)}100%{transform:translateX(400%)}}
+  .gap-note{border:1.5px solid var(--danger);background:var(--card);color:var(--danger);padding:10px 16px;font-size:13px;margin-bottom:16px;line-height:1.6}
+  .w-cnt{font-size:11px;color:var(--sub)}
+  .rec-source{margin-top:10px;font-size:11.5px;color:var(--sub);border-left:3px solid var(--line);padding-left:10px;line-height:1.7}
+  .rec-doubt{display:inline-block;margin-top:8px;border:1px solid var(--danger);color:var(--danger);font-size:11.5px;padding:2px 10px}
+  .weak-title{font-size:15px;font-weight:700;margin:4px 0 10px;color:var(--ink)}
+  .weaklist{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+  .weak-item{display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:var(--card);padding:8px 14px;cursor:pointer;font-family:inherit;text-align:left;width:100%}
+  .weak-item:hover{border-color:var(--accent)}
+  .w-name{min-width:80px;font-size:13px;color:var(--ink);font-weight:600}
+  .w-bar{flex:1;height:8px;background:var(--line);overflow:hidden}
+  .w-bar i{display:block;height:100%}
+  .weak-bad .w-bar i{background:var(--danger)}
+  .weak-mid .w-bar i{background:var(--warn)}
+  .weak-ok .w-bar i{background:var(--accent)}
+  .w-pct{min-width:44px;font-size:13px;font-weight:700}
+  .weak-bad .w-pct{color:var(--danger)}
+  .weak-mid .w-pct{color:var(--warn)}
+  .weak-ok .w-pct{color:var(--accent)}
+  .w-label{min-width:34px;font-size:12px}
+  .weak-bad .w-label{color:var(--danger)}
+  .weak-mid .w-label{color:var(--warn)}
+  .weak-ok .w-label{color:var(--accent)}
+  .tagchips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+  .tagchip{border:1px solid var(--line);background:transparent;color:var(--ink);padding:4px 12px;font-size:12px;cursor:pointer;font-family:inherit}
+  .tagchip:hover{border-color:var(--accent)}
+  .tagchip.on{border-color:var(--accent);background:var(--accent);color:#F7EFDA}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="masthead">
+    <div class="top">
+      <div>
+        <h1>复习记录</h1>
+        <div class="sub">医学记忆卡 · 你的每一轮都在这里</div>
+      </div>
+      <a class="back" href="/">&larr; 返回主页面</a>
+    </div>
+  </div>
+  <div class="gap-note" id="timeNote" style="display:none"></div>
+  <h3 class="weak-title">薄弱点分析</h3>
+  <div class="weaklist" id="weakList"></div>
+  <div class="tagchips" id="recFilter"></div>
+  <div class="stats">
+    <span class="chip">共 <b id="stTotal">0</b> 张</span>
+    <span class="chip">已复习 <b id="stLearned">0</b> 张</span>
+    <span class="chip">待复习 <b class="due-n" id="stDue">0</b> 张</span>
+    <span class="chip">累计复习 <b id="stRounds">0</b> 轮</span>
+  </div>
+  <div class="bar" id="bar"><i></i></div>
+  <div class="list" id="list"></div>
+  <div class="pager" id="pager" hidden>
+    <button class="btn-ghost" id="prevBtn" hidden>&larr; 上一页</button>
+    <span class="info" id="pageInfo"></span>
+    <button class="btn-ghost" id="nextBtn" hidden>下一页 &rarr;</button>
+  </div>
+  <div class="empty" id="empty">加载中…</div>
+</div>
+<script>
+/* ========== IndexedDB（与主页面同一 medcard 库） ========== */
+function idbOpen(){
+  return new Promise((res,rej)=>{
+    const rq=indexedDB.open('medcard',1);
+    rq.onupgradeneeded=e=>{
+      const db=e.target.result;
+      if(!db.objectStoreNames.contains('cards')){
+        const s=db.createObjectStore('cards',{keyPath:'id'});
+        s.createIndex('due','due');s.createIndex('deck','deck');
+      }
+    };
+    rq.onsuccess=()=>res(rq.result);
+    rq.onerror=()=>rej(rq.error);
+  });
+}
+function idbGetAll(db){return new Promise((res,rej)=>{const rq=db.transaction('cards').objectStore('cards').getAll();rq.onsuccess=()=>res(rq.result);rq.onerror=()=>rej(rq.error);});}
+
+/* ========== 工具 ========== */
+const $=id=>document.getElementById(id);
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function fmt(ts){
+  if(!ts)return '—';
+  const d=ts instanceof Date?ts:new Date(ts);
+  if(isNaN(d))return '—';
+  const p=n=>String(n).padStart(2,'0');
+  return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());
+}
+function dayKey(ts){const d=new Date(ts);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function lastReview(c){
+  if(c.fsrsCard&&c.fsrsCard.last_review)return c.fsrsCard.last_review;
+  return null;
+}
+function rounds(c){
+  if(c.fsrsCard&&typeof c.fsrsCard.reps==='number')return c.fsrsCard.reps;
+  return 0;
+}
+function dueTagClass(due){
+  if(due==null)return '';
+  const today=new Date();today.setHours(0,0,0,0);
+  const d=new Date(due);d.setHours(0,0,0,0);
+  if(d.getTime()<today.getTime())return 'due-now';
+  if(d.getTime()===today.getTime())return 'due-today';
+  return 'due-later';
+}
+function dueText(c){
+  if(rounds(c)===0)return {cls:'due-later',txt:'待学习'};
+  if(c.due==null)return {cls:'',txt:'—'};
+  return {cls:dueTagClass(c.due),txt:fmt(c.due)};
+}
+
+/* ========== 渲染 ========== */
+const PAGE=10;
+let all=[],page=1,filterTag='';
+
+/* 薄弱点分析：按标签聚合自评正确率（对=r>=3，错=r<=2） */
+function renderWeak(){
+  const box=$('weakList');
+  const tagMap={};
+  const none='（无标签）';
+  all.forEach(c=>{
+    const tags=(c.tags&&c.tags.length)?c.tags:[none];
+    const h=c.history||[];
+    if(!h.length)return; /* 无评级历史的卡不计入 */
+    tags.forEach(t=>{
+      if(!tagMap[t])tagMap[t]={cards:0,total:0,right:0};
+      const g=tagMap[t];
+      g.cards++;
+      h.forEach(x=>{g.total++;if(x.r>=3)g.right++;});
+    });
+  });
+  const entries=Object.entries(tagMap).filter(([,g])=>g.total>0)
+    .map(([t,g])=>({t,cards:g.cards,total:g.total,rate:g.right/g.total}))
+    .sort((a,b)=>a.rate-b.rate); /* 最弱的排最前 */
+  if(!entries.length){
+    box.innerHTML='<p class="hint">还没有复习记录——复习几轮后，这里会按标签显示你的薄弱点。</p>';
+    return;
+  }
+  box.innerHTML=entries.map(e=>{
+    const pct=Math.round(e.rate*100);
+    const cls=pct<60?'weak-bad':pct<80?'weak-mid':'weak-ok';
+    const label=pct<60?'薄弱':pct<80?'注意':'良好';
+    return `<button class="weak-item ${cls}" data-t="${esc(e.t)}" title="点击筛选该标签">
+      <span class="w-name">${esc(e.t)}</span>
+      <span class="w-bar"><i style="width:${pct}%"></i></span>
+      <span class="w-pct">${pct}%</span>
+      <span class="w-label">${label}</span>
+      <span class="w-cnt">${e.total} 次/${e.cards} 卡</span>
+    </button>`;
+  }).join('');
+  box.querySelectorAll('.weak-item').forEach(b=>b.onclick=()=>{
+    filterTag=b.dataset.t;page=1;render();
+  });
+}
+
+function render(){
+  /* 调试时间偏移警告 */
+  const off=parseInt(localStorage.getItem('mc_debug_offset')||'',10)||0;
+  const tn=$('timeNote');
+  if(off){
+    tn.style.display='block';
+    const d=new Date(Date.now()+off*86400000);
+    tn.textContent='⚠ 调试模式：时间偏移 '+off+' 天（当前模拟日期 '+d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+'）。以下时间均为模拟值！测完请回主页面「调试工具」点「重置」';
+  }else{tn.style.display='none';}
+  /* 标签筛选 chips */
+  const tagSet=[];
+  all.forEach(c=>(c.tags||[]).forEach(t=>{if(!tagSet.includes(t))tagSet.push(t);}));
+  tagSet.sort();
+  $('recFilter').innerHTML='<button class="tagchip'+(filterTag===''?' on':'')+'" data-t="">全部</button>'+
+    tagSet.map(t=>`<button class="tagchip${filterTag===t?' on':''}" data-t="${esc(t)}">${esc(t)}</button>`).join('');
+  $('recFilter').querySelectorAll('.tagchip').forEach(b=>b.onclick=()=>{
+    filterTag=b.dataset.t;page=1;render();
+  });
+  /* 薄弱点分析：按标签聚合自评正确率（对=r>=3，错=r<=2） */
+  renderWeak();
+  const view=filterTag?all.filter(c=>filterTag==='（无标签）'?(c.tags||[]).length===0:(c.tags||[]).includes(filterTag)):all;
+  const total=view.length;
+  const learned=view.filter(c=>rounds(c)>0).length;
+  const dueNow=view.filter(c=>rounds(c)>0&&c.due&&c.due<=Date.now()).length;
+  const totalRounds=view.reduce((s,c)=>s+rounds(c),0);
+  $('stTotal').textContent=total;
+  $('stLearned').textContent=learned;
+  $('stDue').textContent=dueNow;
+  $('stRounds').textContent=totalRounds;
+  if(!total){
+    $('empty').hidden=false;
+    $('empty').innerHTML=filterTag?'没有「'+esc(filterTag)+'」标签的卡片。':'还没有卡片。去 <a href="/">生成卡片</a> 开始吧';
+    $('pager').hidden=true;$('list').innerHTML='';return;
+  }
+  $('empty').hidden=true;
+  const maxPage=Math.max(1,Math.ceil(total/PAGE));
+  if(page>maxPage)page=maxPage;
+  const start=(page-1)*PAGE;
+  const slice=view.slice(start,start+PAGE);
+  $('list').innerHTML=slice.map(c=>{
+    const lr=lastReview(c);
+    const due=dueText(c);
+    return `
+    <div class="item" data-id="${esc(c.id)}">
+      <div class="front">${esc(c.front)}</div>
+      <div class="tags">${(c.tags||[]).map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div>
+      <button class="btn show-ans" data-id="${esc(c.id)}">显示答案</button>
+      <div class="ans" hidden data-ans="${esc(c.id)}">${esc(c.back)}</div>
+      <div class="meta">
+        <span>上次复习：${lr?fmt(lr):'—'}</span>
+        <span>下次复习：<span class="due-tag ${due.cls}">${due.txt}</span></span>
+        <span>已复习 <b>${rounds(c)}</b> 轮</span>
+        <span>牌组：${esc(c.deck||'未命名')}</span>
+      </div>
+      ${c.source?`<div class="rec-source">来源：${esc(c.source)}</div>`:''}
+      ${(c.flag==='doubt'||(c.back||'').indexOf('需核实')>=0)?'<div class="rec-doubt">⚠ 内容需核实</div>':''}
+    </div>`;
+  }).join('');
+  $('pager').hidden=false;
+  $('pageInfo').textContent='第 '+page+' / '+maxPage+' 页 · 共 '+total+' 张';
+  $('prevBtn').hidden=page<=1;
+  $('nextBtn').hidden=page>=maxPage;
+  $('list').querySelectorAll('.show-ans').forEach(b=>b.onclick=()=>{
+    const ans=document.querySelector(`.ans[data-ans="${CSS.escape(b.dataset.id)}"]`);
+    if(ans){ans.hidden=!ans.hidden;b.textContent=ans.hidden?'显示答案':'收起答案';}
+  });
+}
+
+/* ========== 初始化 ========== */
+(async()=>{
+  try{
+    const db=await idbOpen();
+    const cards=await idbGetAll(db);
+    const now=Date.now();
+    all=cards.sort((a,b)=>{
+      const ra=rounds(a),rb=rounds(b);
+      if(ra===0&&rb===0)return (a.created||0)-(b.created||0);
+      if(ra===0)return 1;
+      if(rb===0)return -1;
+      return (a.due||0)-(b.due||0);
+    });
+    render();
+  }catch(e){
+    $('empty').hidden=false;
+    $('empty').innerHTML='读取本地数据失败：'+esc(e.message)+'（请用浏览器打开本页，或检查是否处于无痕模式）';
+  }
+})();
+$('prevBtn').onclick=()=>{page--;render();};
+$('nextBtn').onclick=()=>{page++;render();};
+</script>
+</body>
+</html>

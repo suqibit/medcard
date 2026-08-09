@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>医学记忆卡 · AI 抽卡 + 网页复习</title>
+<style>
+  :root{
+    --bg:#E8D8B1; --card:#F7EFDA; --ink:#2B2924; --sub:#635C4B;
+    --line:#CFC2A2; --accent:#0E5A4A; --accent-soft:#DCE6DE; --rule:#C4B68F;
+    --warn:#A05A2C; --danger:#8C2F1E;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  [hidden]{display:none!important}
+  .mask{position:fixed;inset:0;background:rgba(43,41,36,.45);z-index:99;display:flex;align-items:center;justify-content:center;padding:20px}
+  .helpbox{position:relative;background:var(--card);border:2px solid var(--accent);max-width:480px;width:100%;padding:30px 28px 24px;box-shadow:0 12px 40px rgba(43,41,36,.35)}
+  .helpbox h3{font-family:"Noto Serif SC",serif;font-size:20px;letter-spacing:1px;margin-bottom:16px;color:var(--accent)}
+  .helpbox p{font-size:13.5px;line-height:1.9;color:var(--ink);margin-bottom:10px}
+  .helpbox ul{margin:4px 0 12px;padding-left:20px}
+  .helpbox li{font-size:13.5px;line-height:2;color:var(--ink)}
+  .helpbox .ps{font-size:12px;color:var(--sub);border-top:1px dashed var(--rule);padding-top:10px;margin-top:12px}
+  .help-x{position:absolute;top:8px;right:14px;background:none;border:none;font-size:24px;line-height:1;color:var(--sub);cursor:pointer;padding:4px}
+  .help-x:hover{color:var(--danger)}
+  .help-btns{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
+  .ocrbox{background:var(--card);border:2px solid var(--accent);max-width:320px;width:100%;padding:34px 28px;text-align:center;box-shadow:0 12px 40px rgba(43,41,36,.35)}
+  .spinner{width:38px;height:38px;border:4px solid var(--accent-soft);border-top-color:var(--accent);border-radius:50%;margin:0 auto 18px;animation:spin .9s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .ocr-title{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:8px}
+  .ocr-sub{font-size:12.5px;color:var(--sub)}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    line-height:1.7; -webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(circle at 50% -6%,rgba(255,244,214,.45),transparent 55%);
+    background-attachment:fixed;
+  }
+  .page{max-width:640px;margin:0 auto;padding:48px 28px 80px}
+  .masthead{border-bottom:2px solid var(--ink);padding-bottom:18px;margin-bottom:20px}
+  .masthead .kicker{
+    font-family:"Noto Serif SC","Songti SC",serif; font-size:13px; letter-spacing:.35em;
+    color:var(--accent); margin-bottom:10px;
+  }
+  .masthead h1{
+    font-family:"Noto Serif SC","Songti SC","SimSun",serif;
+    font-size:32px; font-weight:700; letter-spacing:.06em;
+  }
+  .masthead .sub{margin-top:6px;color:var(--sub);font-size:14px}
+  /* tab 导航 */
+  .tabs{display:flex;gap:0;border-bottom:1.5px solid var(--line);margin-bottom:24px}
+  .mode-switch{display:flex;gap:0;border:1px solid var(--line);margin-bottom:16px;width:fit-content}
+  .mode-switch .m{background:transparent;color:var(--sub);border:none;padding:7px 16px;font-size:13px;cursor:pointer;font-family:inherit}
+  .mode-switch .m.on{background:var(--accent);color:#F7EFDA}
+  .quiz-toggle{display:flex;gap:0;border:1px solid var(--line);width:fit-content;margin-bottom:12px}
+  .quiz-toggle .qt{background:transparent;color:var(--sub);border:none;padding:4px 14px;font-size:12px;cursor:pointer;font-family:inherit}
+  .quiz-toggle .qt.on{background:var(--accent);color:#F7EFDA}
+  .quiz-area{margin:6px 0 10px}
+  .quiz-q{font-size:14px;font-weight:600;margin-bottom:10px;line-height:1.6}
+  .quiz-opts{display:flex;flex-direction:column;gap:8px}
+  .quiz-opt{border:1px solid var(--line);background:transparent;padding:9px 14px;font-size:13.5px;text-align:left;cursor:pointer;font-family:inherit;color:var(--ink);line-height:1.6}
+  .quiz-opt:hover{border-color:var(--accent)}
+  .quiz-opt.correct{border-color:var(--accent);background:var(--accent-soft);font-weight:600}
+  .quiz-opt.wrong{border-color:var(--danger);background:#F3DED6;color:var(--danger)}
+  .quiz-opt:disabled{cursor:default}
+  .quiz-res{margin-top:10px;font-size:13px;font-weight:600}
+  .quiz-res.ok{color:var(--accent)}
+  .quiz-res.bad{color:var(--danger)}
+  .rev-doubt{border:1.5px solid var(--danger);background:#F3DED6;color:var(--danger);padding:8px 14px;font-size:12.5px;margin-bottom:12px;line-height:1.6}
+  .rev-source{margin-top:10px;font-size:11.5px;color:var(--sub);border-left:3px solid var(--line);padding-left:10px;line-height:1.7}
+  .tagmgmt{margin-bottom:16px}
+  .tagchips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+  .tagchip{border:1px solid var(--line);background:transparent;color:var(--ink);padding:4px 12px;font-size:12px;cursor:pointer;font-family:inherit}
+  .tagchip:hover{border-color:var(--accent)}
+  .tagchip.on{border-color:var(--accent);background:var(--accent);color:#F7EFDA}
+  .tagchip .x{margin-left:6px;color:var(--danger);font-weight:700}
+  .tagchip.builtin{cursor:default;color:var(--sub)}
+  .tagpick{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .tagpick .tagchip{font-size:11px;padding:2px 10px}
+  .tab{
+    padding:10px 22px;font-size:14px;letter-spacing:.1em;cursor:pointer;color:var(--sub);
+    border-bottom:2.5px solid transparent;margin-bottom:-1.5px;user-select:none;
+  }
+  .tab:hover{color:var(--ink)}
+  .tab.on{color:var(--accent);border-bottom-color:var(--accent);font-weight:700}
+  .view{display:none}
+  .view.on{display:block}
+  /* 制卡 */
+  .sheet{border:1.5px solid var(--line);background:var(--card);padding:28px;
+         box-shadow:0 1px 0 rgba(196,182,143,.5)}
+  .field{margin-bottom:20px}
+  .field label{display:block;font-size:13px;font-weight:600;margin-bottom:8px;letter-spacing:.08em}
+  .field label .no{color:var(--accent);font-family:"Noto Serif SC",serif;margin-right:6px}
+  textarea{
+    width:100%; min-height:170px; border:1px solid var(--line); background:#F3EAD2;
+    padding:14px; font-size:14px; line-height:1.8; color:var(--ink); resize:vertical;
+    font-family:inherit; border-radius:0;
+  }
+  textarea:focus{outline:none;border-color:var(--accent)}
+  .hint{font-size:12px;color:var(--sub);margin-top:6px}
+  .row{display:flex;gap:12px;align-items:center}
+  .col{display:flex;flex-direction:column;gap:6px}
+  .col.grow{flex:1;min-width:0}
+  .col label{display:block;margin-bottom:0}
+  .col input[type=number]{
+    width:86px;border:1px solid var(--line);background:#F3EAD2;padding:10px 12px;
+    font-size:14px;color:var(--ink);font-family:inherit;
+  }
+  .col input[type=number]:focus{outline:none;border-color:var(--accent)}
+  .col input[type=number]::-webkit-inner-spin-button,
+  .col input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+  .col input[type=number]{-moz-appearance:textfield;appearance:textfield}
+  input[type=text]{
+    flex:1; border:1px solid var(--line); background:#F3EAD2; padding:10px 12px;
+    font-size:14px; color:var(--ink); font-family:inherit; border-radius:0; min-width:0;
+  }
+  input[type=text]:focus{outline:none;border-color:var(--accent)}
+  .btn{
+    background:var(--accent); color:#F7F3E6; border:none; padding:12px 28px;
+    font-size:15px; letter-spacing:.15em; cursor:pointer; font-family:inherit;
+    transition:background .15s; white-space:nowrap;
+  }
+  .btn:hover{background:#0A473A}
+  .btn:disabled{opacity:.55;cursor:wait}
+  .btn-ghost{
+    background:transparent;color:var(--accent);border:1.5px solid var(--accent);
+    padding:10px 18px;font-size:13.5px;letter-spacing:.08em;cursor:pointer;font-family:inherit;
+    transition:background .15s;white-space:nowrap;
+  }
+  .btn-ghost:hover{background:var(--accent-soft)}
+  .upload{border:1.5px dashed var(--rule);padding:14px;text-align:center;font-size:13px;color:var(--sub);margin-bottom:20px;cursor:pointer;transition:border-color .15s}
+  .upload:hover{border-color:var(--accent)}
+  .result{margin-top:28px;border-top:2px solid var(--ink);padding-top:20px;display:none}
+  .result .rhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:10px;flex-wrap:wrap}
+  .result h2{font-family:"Noto Serif SC",serif;font-size:17px;letter-spacing:.05em}
+  .demo-note{
+    font-size:12px;color:var(--warn);border:1px solid rgba(160,90,44,.35);
+    background:rgba(160,90,44,.07);padding:8px 12px;margin-bottom:12px;
+  }
+  .card-item{border:1px solid var(--line);background:var(--card);padding:14px 16px;margin-bottom:10px}
+  .card-item .front{font-size:14px;font-weight:600}
+  .card-item .back{margin-top:6px;font-size:13px;color:var(--sub);border-top:1px dashed var(--rule);padding-top:6px;white-space:pre-wrap}
+  .card-item .tag{display:inline-block;font-size:11px;color:var(--accent);border:1px solid var(--accent-soft);background:var(--accent-soft);padding:1px 8px;margin-right:6px;margin-top:8px;letter-spacing:.05em}
+  .status{font-size:13px;color:var(--sub);margin-bottom:12px}
+  .dlbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .dl{
+    display:inline-block;background:var(--accent);color:#F7F3E6;padding:11px 22px;
+    font-size:14px;letter-spacing:.1em;text-decoration:none;transition:background .15s;
+  }
+  .dl:hover{background:#0A473A}
+  .btn-solid{
+    background:var(--accent);color:#F7F3E6;border:none;padding:11px 18px;
+    font-size:13.5px;letter-spacing:.05em;cursor:pointer;font-family:inherit;
+    transition:background .15s;white-space:nowrap;
+  }
+  .btn-solid:hover{background:#0A473A}
+  .btn-solid:disabled{opacity:.55;cursor:wait}
+  .err{
+    font-size:13px;color:var(--danger);border:1px solid rgba(140,47,30,.4);
+    background:rgba(140,47,30,.06);padding:10px 12px;margin-top:14px;display:none;
+  }
+  .ok{
+    font-size:13px;color:var(--accent);border:1px solid var(--accent-soft);
+    background:var(--accent-soft);padding:10px 12px;margin-top:14px;display:none;
+  }
+  .footnote{margin-top:36px;font-size:12px;color:var(--sub);border-top:1px solid var(--rule);padding-top:14px;letter-spacing:.03em}
+  .bar{height:2px;background:var(--line);margin-top:14px;overflow:hidden;display:none}
+  .bar i{display:block;height:100%;width:100%;background:var(--accent);animation:slide 1.2s ease-in-out infinite}
+  @keyframes slide{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+  /* 复习视图 */
+  .rv-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .gap-note{
+    font-size:12.5px;color:var(--warn);border:1px solid rgba(160,90,44,.35);
+    background:rgba(160,90,44,.07);padding:8px 12px;margin-bottom:12px;
+  }
+  .review-stage{min-height:320px}
+  .rev-card{
+    border:1.5px solid var(--line);background:var(--card);padding:30px 26px;
+    box-shadow:0 1px 0 rgba(196,182,143,.5);
+  }
+  .rev-deck{font-size:12px;color:var(--accent);letter-spacing:.15em;margin-bottom:14px}
+  .rev-front{font-family:"Noto Serif SC",serif;font-size:19px;font-weight:700;line-height:1.6;min-height:60px}
+  .rev-back{
+    margin-top:16px;padding-top:14px;border-top:1px dashed var(--rule);
+    font-size:15px;color:var(--sub);white-space:pre-wrap;
+  }
+  .rev-tags{margin-top:12px}
+  .rev-tags .tag{display:inline-block;font-size:11px;color:var(--accent);border:1px solid var(--accent-soft);background:var(--accent-soft);padding:1px 8px;margin-right:6px}
+  .rev-empty{text-align:center;padding:60px 20px;color:var(--sub)}
+  .rev-empty .big{font-size:34px;margin-bottom:10px}
+  .rates{display:flex;gap:10px;margin-top:16px}
+  .rate{
+    flex:1;padding:12px 6px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;
+    border:1.5px solid var(--line);background:var(--card);color:var(--ink);transition:all .12s;
+  }
+  .rate:hover{border-color:var(--accent);transform:translateY(-1px)}
+  .rate.again:hover{background:#F3E2DA;border-color:#A05A2C}
+  .rate.hard:hover{background:#F1E7CE;border-color:#C4A24C}
+  .rate.good:hover{background:var(--accent-soft);border-color:var(--accent)}
+  .rate.easy:hover{background:#E7EFD8;border-color:#5F7A3A}
+  .center{text-align:center}
+  /* 管理 */
+  .manage{margin-top:30px;border-top:2px solid var(--ink);padding-top:18px}
+  .manage h2{font-family:"Noto Serif SC",serif;font-size:16px;letter-spacing:.05em;margin-bottom:12px}
+  .decklist{max-height:200px;overflow:auto;margin-bottom:14px}
+  .deck-item{
+    display:flex;justify-content:space-between;align-items:center;
+    border:1px solid var(--line);background:var(--card);padding:9px 14px;margin-bottom:8px;font-size:13px;
+  }
+  .deck-item .cnt{color:var(--sub);font-size:12px}
+  .deck-item .del{color:var(--danger);cursor:pointer;font-size:12px;border:none;background:none;font-family:inherit;text-decoration:underline}
+  .manage-btns{display:flex;gap:10px;flex-wrap:wrap}
+  .debug{border:1px dashed var(--rule);padding:10px 14px;margin-bottom:18px}
+  .debug summary{cursor:pointer;font-size:12.5px;color:var(--sub);letter-spacing:.05em}
+  .debug .setrow{margin-bottom:10px}
+  .setrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+  .setrow label{font-size:12.5px;color:var(--sub)}
+  .setrow input[type=number]{
+    width:74px;border:1px solid var(--line);background:#F3EAD2;padding:6px 8px;
+    font-size:13px;color:var(--ink);font-family:inherit;
+  }
+  .card-detail{max-height:300px;overflow:auto;margin-bottom:14px}
+  .cd-item{border:1px solid var(--line);background:var(--card);padding:10px 12px;margin-bottom:8px;font-size:13px}
+  .cd-item .cf{font-weight:500}
+  .cd-item .tools{display:flex;gap:12px;margin-top:6px}
+  .cd-item .tools button{font-size:12px;cursor:pointer;border:none;background:none;font-family:inherit;text-decoration:underline;color:var(--accent)}
+  .cd-item .tools .delb{color:var(--danger)}
+  .cd-item textarea{
+    width:100%;min-height:56px;border:1px solid var(--line);background:#F3EAD2;
+    padding:8px;font-size:13px;font-family:inherit;resize:vertical;margin-bottom:6px;
+  }
+  .cd-item .tagline{
+    width:100%;border:1px solid var(--line);background:#F3EAD2;padding:6px 8px;
+    font-size:12px;font-family:inherit;margin-bottom:8px;
+  }
+  @media(max-width:520px){.page{padding:32px 16px 60px}.masthead h1{font-size:26px}.row{flex-direction:column;align-items:stretch}.btn{width:100%}.rates{flex-wrap:wrap}.rate{min-width:44%}}
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="masthead">
+    <div class="kicker">医学考研 · 306 西综</div>
+    <h1>医学记忆卡</h1>
+    <p class="sub">把教材交给 AI，把考点做成卡片 —— 生成、保存、网页里随时复习。</p>
+  </header>
+
+  <nav class="tabs">
+    <div class="tab on" data-v="gen">生成卡片</div>
+    <div class="tab" data-v="rev">开始复习</div>
+  </nav>
+
+  <!-- ========== 视图一：生成卡片 ========== -->
+  <section class="view on" id="view-gen">
+    <div class="sheet">
+      <div class="mode-switch" role="tablist" aria-label="制卡模式">
+        <button class="m on" id="modeText" data-mode="text">教材抽卡</button>
+        <button class="m" id="modeWrong" data-mode="wrong">错题制卡</button>
+      </div>
+      <div class="upload" id="uploadBox">＋ 或上传你的讲义（.txt / .md / .pdf）</div>
+      <input type="file" id="fileInput" accept=".txt,.md,.pdf,.docx,.png,.jpg,.jpeg,.webp" style="display:none">
+      <div class="field">
+        <label id="taLabel">粘贴教材 / 讲义原文</label>
+        <textarea id="textArea" placeholder="例：肾小球滤过率(GFR)是评估肾功能的金标准。菊粉清除率可准确测定GFR，正常约125ml/min……"></textarea>
+      </div>
+      <div class="field">
+        <div class="row" style="align-items:flex-end">
+          <div class="col grow">
+            <label>牌组名称</label>
+            <input type="text" id="deckName" placeholder="如：肾生理·第三轮">
+          </div>
+          <div class="col">
+            <label>卡片数量</label>
+            <input type="number" id="cardCount" min="1" max="20" value="15">
+          </div>
+          <button class="btn" id="genBtn">生成牌组</button>
+        </div>
+        <div class="hint" id="genHint">数量最多 20 张；内容太少时 AI 宁缺毋滥。</div>
+      </div>
+    </div>
+
+    <section class="result" id="result">
+      <div class="rhead">
+        <h2>生成结果</h2>
+        <span class="status" id="statusText"></span>
+        <div class="dlbar" id="dlbar" style="display:none">
+          <a class="dl" id="dlLink" href="#">下载 .apkg 导入 Anki</a>
+          <button class="btn-solid" id="saveBtn">存到本地（逐条学习后自动保存）</button>
+          <button class="btn-solid" id="csvBtn">导出 .csv</button>
+        </div>
+      </div>
+      <div class="demo-note" id="demoNote" style="display:none">
+        ⚠ 当前为演示模式：未检测到 API Key，卡片由规则切分生成（质量有限）。配置 key 后即为 AI 抽卡。
+      </div>
+      <div id="learnBox" hidden>
+        <div class="status" id="learnStat"></div>
+          <div class="rev-card" id="learnCard" style="margin-top:8px">
+            <div class="quiz-toggle" id="learnQuizToggle" hidden>
+              <button class="qt on" data-q="qa">问答</button>
+              <button class="qt" data-q="quiz">选择</button>
+            </div>
+            <div class="rev-doubt" id="learnDoubt" hidden>⚠ 此卡内容需核实，请对照下方来源确认后再背</div>
+            <div class="rev-deck" id="learnDeck"></div>
+            <div class="rev-front" id="learnFront"></div>
+            <div class="quiz-area" id="learnQuizArea" hidden>
+              <div class="quiz-q" id="learnQuizQ"></div>
+              <div class="quiz-opts" id="learnQuizOpts"></div>
+              <div class="quiz-res" id="learnQuizRes" hidden></div>
+            </div>
+            <div class="rev-back" id="learnBack" hidden></div>
+            <div class="rev-tags" id="learnTags"></div>
+            <div class="rev-source" id="learnSource" hidden></div>
+            <div class="center" style="margin-top:18px">
+              <button class="btn" id="learnShowAns">显示答案</button>
+            </div>
+          </div>
+        <div class="rates" id="learnRates" hidden>
+          <button class="rate again" data-r="1">忘记</button>
+          <button class="rate hard" data-r="2">困难</button>
+          <button class="rate good" data-r="3">记得</button>
+          <button class="rate easy" data-r="4">简单</button>
+        </div>
+      </div>
+      <div class="bar" id="bar"><i></i></div>
+      <div class="ok" id="okBox"></div>
+      <div class="err" id="errBox"></div>
+    </section>
+  </section>
+
+  <!-- ========== 视图二：开始复习 ========== -->
+  <section class="view" id="view-rev">
+    <div class="rv-top">
+      <span class="status" id="rvStat">加载中…</span>
+      <button class="btn-ghost" id="refreshBtn">刷新</button>
+    </div>
+    <div class="gap-note" id="timeNote" style="display:none"></div>
+    <div class="gap-note" id="gapNote" style="display:none"></div>
+
+    <div class="review-stage">
+      <div class="rev-card" id="revCard" hidden>
+        <div class="quiz-toggle" id="revQuizToggle" hidden>
+          <button class="qt on" data-q="qa">问答</button>
+          <button class="qt" data-q="quiz">选择</button>
+        </div>
+        <div class="rev-doubt" id="revDoubt" hidden>⚠ 此卡内容需核实，请对照下方来源确认后再背</div>
+        <div class="rev-deck" id="revDeck"></div>
+        <div class="rev-front" id="revFront"></div>
+        <div class="quiz-area" id="revQuizArea" hidden>
+          <div class="quiz-q" id="revQuizQ"></div>
+          <div class="quiz-opts" id="revQuizOpts"></div>
+          <div class="quiz-res" id="revQuizRes" hidden></div>
+        </div>
+        <div class="rev-back" id="revBack" hidden></div>
+        <div class="rev-tags" id="revTags"></div>
+        <div class="rev-source" id="revSource" hidden></div>
+        <div class="center" style="margin-top:18px">
+          <button class="btn" id="showAnsBtn">显示答案</button>
+        </div>
+      </div>
+
+      <div class="rev-empty" id="revEmpty" hidden>
+        <div class="big">✓</div>
+        <p id="revEmptyText">今天没有待复习的卡片。</p>
+        <p class="hint" style="margin-top:8px">去「生成卡片」做几张存进来，或点下面复习全部。</p>
+        <div style="margin-top:16px"><button class="btn-ghost" id="reviewAllBtn">复习全部卡片</button></div>
+      </div>
+
+      <div class="rates" id="rates" hidden>
+        <button class="rate again" data-r="1">忘记</button>
+        <button class="rate hard" data-r="2">困难</button>
+        <button class="rate good" data-r="3">记得</button>
+        <button class="rate easy" data-r="4">简单</button>
+      </div>
+    </div>
+
+    <div class="manage">
+      <h2>复习设置</h2>
+      <div class="setrow">
+        <label>每日复习上限</label><input type="number" id="limitRev" min="0" max="999" value="100">
+        <button class="btn-ghost" id="saveLimitBtn">保存</button>
+      </div>
+      <details class="debug">
+        <summary>调试工具（测试时间类功能用）</summary>
+        <div class="setrow">
+          <label>时间偏移（天）</label><input type="number" id="dbgOffset" min="-30" max="60" value="0">
+          <button class="btn-ghost" id="dbgApply">应用偏移</button>
+          <button class="btn-ghost" id="dbgReset">重置</button>
+        </div>
+        <div class="setrow">
+          <button class="btn-ghost" id="dbgStreak">模拟打卡 5 天</button>
+          <button class="btn-ghost" id="dbgSeed">造测试卡（3天前学的、今天到期）</button>
+          <button class="btn-ghost" id="dbgDue">全部卡片立即到期</button>
+        </div>
+        <div class="setrow">
+          <button class="btn-ghost" id="dbgWipe" style="color:var(--danger);border-color:var(--danger)">清空全部数据（还原出厂）</button>
+        </div>
+        <p class="hint">模拟数据仅存本机。测完点「重置」，正式使用偏移保持 0。</p>
+      </details>
+      <h2>标签管理 <span class="hint" style="font-weight:400">（六科内置，可自定义）</span></h2>
+      <div class="tagmgmt">
+        <div class="tagchips" id="tagMgmtList"></div>
+        <div class="setrow">
+          <input type="text" id="tagNewName" placeholder="新标签名，如：诊断学·肾内" style="width:200px">
+          <button class="btn-ghost" id="tagAddBtn">添加标签</button>
+        </div>
+      </div>
+      <h2>我的卡片 <a class="rec-link" href="/records" style="font-size:12px;color:var(--accent);text-decoration:none;border:1px solid var(--accent);padding:2px 10px;margin-left:8px">复习记录 →</a></h2>
+      <div class="decklist" id="deckList"></div>
+      <div class="card-detail" id="cardDetail"></div>
+      <div class="manage-btns">
+        <button class="btn-ghost" id="exportJsonBtn">导出备份 (.json)</button>
+        <button class="btn-ghost" id="importJsonBtn">导入备份</button>
+        <input type="file" id="importFile" accept=".json,.txt" style="display:none">
+      </div>
+    </div>
+  </section>
+
+  <p class="footnote">你的资料只在本机处理，复习数据存在浏览器本地，可随时导出备份。生成的牌组归你所有。卡片内容由 AI 根据你提供的资料生成，<b>仅供参考，请以教材及权威资料为准</b>；标注「需核实」的内容请对照来源确认后再背。</p>
+</div>
+
+<!-- OCR 识别中提示弹窗 -->
+<div class="mask" id="ocrMask" hidden>
+  <div class="ocrbox" role="alertdialog" aria-label="正在识别">
+    <div class="spinner" aria-hidden="true"></div>
+    <p class="ocr-title">正在调用 AI 智能识别题目…</p>
+    <p class="ocr-sub">预计 10 秒左右，请稍候</p>
+  </div>
+</div>
+
+<!-- 复习时间说明弹窗 -->
+<div class="mask" id="helpMask" hidden>
+  <div class="helpbox" role="dialog" aria-label="复习时间说明">
+    <button class="help-x" id="helpX" title="本次关闭">&times;</button>
+    <h3>复习时间是怎么算的？</h3>
+    <p>你每次复习后选的「忘记 / 困难 / 记得 / 简单」，系统会据此安排这张卡<strong>下次出现的时间</strong>：</p>
+    <ul>
+      <li><strong>首次学习后</strong>：忘记&rarr;明天 · 困难&rarr;2 天后 · 记得&rarr;3 天后 · 简单&rarr;8 天后</li>
+      <li><strong>越熟练间隔越长</strong>——熟的知识不浪费你时间；<strong>越生疏出现越频繁</strong>——趁热打铁巩固</li>
+      <li>只有<strong>到期</strong>的卡才会出现在复习页；每天有复习上限，不会堆积</li>
+      <li>断了好几天回来也不怕：系统会提示你攒了多少，慢慢跟上，<strong>不会越堆越多</strong></li>
+    </ul>
+    <p class="ps">这一切由 FSRS 算法自动调度（Anki 同款），你只管如实自评。</p>
+    <div class="help-btns">
+      <button class="btn" id="helpMonth">一月内不提醒</button>
+      <button class="btn-ghost" id="helpOff">永远关闭提醒</button>
+    </div>
+  </div>
+</div>
+
+<script src="/static/vendor/ts-fsrs.umd.js"></script>
+<script>
+/* ========== 通用 ========== */
+const $=id=>document.getElementById(id);
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function download(name,content,mime){
+  const blob=new Blob([content],{type:mime||'application/octet-stream'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+function fmtDate(ts){
+  const d=new Date(ts);
+  const w=['日','一','二','三','四','五','六'][d.getDay()];
+  return `${d.getMonth()+1}月${d.getDate()}日 周${w}`;
+}
+
+/* ========== tab 切换 ========== */
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('on'));
+  t.classList.add('on');$('view-'+t.dataset.v).classList.add('on');
+  if(t.dataset.v==='rev'){refreshReview();showHelpIfNeeded();}
+});
+
+/* ========== 复习时间说明弹窗 ========== */
+const helpMask=$('helpMask'),helpX=$('helpX'),helpMonth=$('helpMonth'),helpOff=$('helpOff');
+function showHelpIfNeeded(){
+  if(localStorage.getItem('mc_help_off')==='1')return;
+  const until=localStorage.getItem('mc_help_until');
+  if(until&&until>=todayStr())return;
+  helpMask.hidden=false;
+}
+helpX.onclick=()=>{helpMask.hidden=true;};        /* 仅本次关闭 */
+helpMonth.onclick=()=>{                           /* 一月内不提醒 */
+  const d=new Date(Date.now()+30*86400000);
+  localStorage.setItem('mc_help_until',d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'));
+  helpMask.hidden=true;
+};
+helpOff.onclick=()=>{localStorage.setItem('mc_help_off','1');helpMask.hidden=true;};
+
+/* ========== IndexedDB 层 ========== */
+let DB=null;
+function idbOpen(){
+  return new Promise((res,rej)=>{
+    const rq=indexedDB.open('medcard',1);
+    rq.onupgradeneeded=e=>{
+      const db=e.target.result;
+      if(!db.objectStoreNames.contains('cards')){
+        const s=db.createObjectStore('cards',{keyPath:'id'});
+        s.createIndex('due','due');s.createIndex('deck','deck');
+      }
+    };
+    rq.onsuccess=()=>res(rq.result);
+    rq.onerror=()=>rej(rq.error);
+  });
+}
+function idbPut(db,val){return new Promise((res,rej)=>{const tx=db.transaction('cards','readwrite');tx.objectStore('cards').put(val);tx.oncomplete=res;tx.onerror=()=>rej(tx.error);});}
+function idbPutAll(db,arr){return new Promise((res,rej)=>{const tx=db.transaction('cards','readwrite');const s=tx.objectStore('cards');arr.forEach(v=>s.put(v));tx.oncomplete=res;tx.onerror=()=>rej(tx.error);});}
+function idbGetAll(db){return new Promise((res,rej)=>{const rq=db.transaction('cards').objectStore('cards').getAll();rq.onsuccess=()=>res(rq.result);rq.onerror=()=>rej(rq.error);});}
+function idbDel(db,id){return new Promise((res,rej)=>{const tx=db.transaction('cards','readwrite');tx.objectStore('cards').delete(id);tx.oncomplete=res;tx.onerror=()=>rej(tx.error);});}
+function idbClear(db){return new Promise((res,rej)=>{const tx=db.transaction('cards','readwrite');tx.objectStore('cards').clear();tx.oncomplete=res;tx.onerror=()=>rej(tx.error);});}
+
+/* ========== FSRS 调度器（官方 ts-fsrs） ========== */
+const _fsrs = (typeof FSRS!=='undefined') ? FSRS : null;
+let scheduler = null;
+try{
+  if(_fsrs && _fsrs.fsrs){
+    scheduler=_fsrs.fsrs(_fsrs.generatorParameters({enable_short_term:false}));
+  }
+}catch(e){scheduler=null;}
+function fsrsNewCard(){return _fsrs.createEmptyCard(new Date(dbgNow()));}
+function fsrsSchedule(card,rating){
+  const res=_fsrs.fsrs ? scheduler.repeat(card,new Date(dbgNow())) : null;
+  const next=res?res[rating]:null;
+  return next?next.card:null;
+}
+
+/* ========== 制卡 ========== */
+const btn=$('genBtn'),ta=$('textArea'),box=$('uploadBox'),fi=$('fileInput'),
+      resBox=$('result'),st=$('statusText'),bar=$('bar'),
+      dlbar=$('dlbar'),dlLink=$('dlLink'),errBox=$('errBox'),okBox=$('okBox'),
+      demoNote=$('demoNote'),deckName=$('deckName'),saveBtn=$('saveBtn'),csvBtn=$('csvBtn'),
+      cardCount=$('cardCount'),taLabel=$('taLabel'),genHint=$('genHint');
+/* 模式切换：教材抽卡 / 错题制卡 */
+let curMode='text';
+const modeText=$('modeText'),modeWrong=$('modeWrong');
+function setMode(m){
+  curMode=m;
+  modeText.classList.toggle('on',m==='text');
+  modeWrong.classList.toggle('on',m==='wrong');
+  if(m==='wrong'){
+    taLabel.textContent='粘贴你做错的题（题干 + 你的答案）';
+    ta.placeholder='例：男，56岁，COPD 患者，FEV1/FVC=0.58，FEV1占预计值65%，GOLD分级？我选了2级…';
+    box.textContent='＋ 或上传错题图片 / 文件（截图、拍照均可，识别后需复核）';
+    genBtn.textContent='生成错题卡';
+    genHint.textContent='AI 从错题提炼知识点卡（1-5 张），tags 带「错题」，可用来追踪薄弱点。';
+    if(cardCount.value==='15')cardCount.value='3';
+  }else{
+    taLabel.textContent='粘贴教材 / 讲义原文';
+    ta.placeholder='例：肾小球滤过率(GFR)是评估肾功能的金标准。菊粉清除率可准确测定GFR，正常约125ml/min……';
+    box.textContent='＋ 或上传你的讲义（.txt / .md / .pdf）';
+    genBtn.textContent='生成牌组';
+    genHint.textContent='数量最多 20 张；内容太少时 AI 宁缺毋滥。';
+    if(cardCount.value==='3')cardCount.value='15';
+  }
+}
+modeText.onclick=()=>setMode('text');
+modeWrong.onclick=()=>setMode('wrong');
+cardCount.addEventListener('input',()=>{
+  const v=parseInt(cardCount.value,10);
+  if(!isNaN(v)){
+    if(v<1)cardCount.value=1;
+    else if(v>20)cardCount.value=20;
+  }
+});
+let lastCards=[],lastDeck='';
+
+box.onclick=()=>fi.click();
+fi.onchange=e=>{
+  const f=e.target.files[0];
+  if(!f)return;
+  if(f.size>4*1024*1024){showErr('文件过大（限 4MB）');fi.value='';return}
+  if(/\.(png|jpe?g|webp)$/i.test(f.name)){
+    /* 图片：OCR 提取文字 → 填入文本框人工复核（错题模式主场景） */
+    st.textContent='正在识别图片文字（OCR）…';
+    const ocrMask=$('ocrMask');
+    ocrMask.hidden=false;
+    const fd=new FormData();fd.append('file',f);
+    fetch('/ocr',{method:'POST',body:fd})
+      .then(r=>r.json())
+      .then(d=>{
+        ocrMask.hidden=true;
+        if(d.error){showErr(d.error);fi.value='';st.textContent='';return}
+        ta.value=d.text;
+        st.textContent='已识别图片文字（'+d.text.length+' 字）——请人工复核修改后，再点「'+(curMode==='wrong'?'生成错题卡':'生成牌组')+'」';
+      })
+      .catch(err=>{
+        ocrMask.hidden=true;
+        showErr('图片识别失败：'+err.message);fi.value='';st.textContent='';
+      });
+    return;
+  }
+  if(/\.docx$/i.test(f.name)){
+    st.textContent='正在解析 Word…';
+    const fd=new FormData();fd.append('file',f);
+    fetch('/extract_docx',{method:'POST',body:fd})
+      .then(r=>r.json())
+      .then(d=>{
+        if(d.error){showErr(d.error);fi.value='';return}
+        ta.value=d.text;st.textContent='已载入 Word：'+f.name+'（'+d.text.length+' 字）';
+      })
+      .catch(err=>{showErr('Word 解析失败：'+err.message);fi.value='';});
+    return;
+  }
+  if(/\.pdf$/i.test(f.name)){
+    st.textContent='正在解析 PDF…';
+    const fd=new FormData();fd.append('file',f);
+    fetch('/extract_pdf',{method:'POST',body:fd})
+      .then(r=>r.json())
+      .then(d=>{
+        if(d.error){showErr(d.error);fi.value='';return}
+        ta.value=d.text;st.textContent='已载入 PDF：'+f.name+'（'+d.text.length+' 字）';
+      })
+      .catch(err=>{showErr('PDF 解析失败：'+err.message);fi.value='';});
+    return;
+  }
+  if(!/\.(txt|md)$/i.test(f.name)){showErr('仅支持 .txt / .md / .pdf / .docx / 图片(png/jpg/webp)');fi.value='';return}
+  const r=new FileReader();
+  r.onload=()=>{ta.value=r.result;st.textContent='已载入：'+f.name;}
+  r.readAsText(f);
+};
+function showErr(m){errBox.textContent=m;errBox.style.display='block';okBox.style.display='none';}
+function showOk(m){okBox.textContent=m;okBox.style.display='block';errBox.style.display='none';}
+
+btn.onclick=()=>{
+  const text=ta.value.trim();
+  if(!text){ta.focus();return}
+  errBox.style.display='none';okBox.style.display='none';
+  btn.disabled=true;btn.textContent='抽卡中…';
+  bar.style.display='block';resBox.style.display='block';
+  dlbar.style.display='none';demoNote.style.display='none';
+  st.textContent='正在调用 AI 抽卡，约需 10-30 秒…';
+  fetch('/generate',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({text,deck_name:deckName.value.trim()||'医学记忆卡',max_cards:cardCount.value||10,mode:curMode,custom_tags:customTags()})
+  })
+  .then(r=>r.json())
+  .then(data=>{
+    bar.style.display='none';
+    if(data.error){st.textContent='生成失败';showErr(data.error);btn.disabled=false;btn.textContent='生成牌组';return}
+    if(data.demo)demoNote.style.display='block';
+    st.textContent='共 '+data.cards+' 张卡片'+(data.demo?'（演示）':' · AI 原子卡');
+    lastCards=data.cards_content||[];lastDeck=deckName.value.trim()||'医学记忆卡';
+    if(data.file_b64){
+      try{
+        const bin=atob(data.file_b64);
+        const bytes=new Uint8Array(bin.length);
+        for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
+        const blob=new Blob([bytes],{type:'application/octet-stream'});
+        dlLink.href=URL.createObjectURL(blob);
+        dlLink.download=data.file||'医学记忆卡.apkg';
+      }catch(e){showErr('牌组数据解析失败：'+e.message);}
+    }
+    dlbar.style.display='flex';
+    saveBtn.disabled = !scheduler;
+    btn.disabled=false;btn.textContent='生成牌组';
+    learnStart(lastCards);
+  })
+  .catch(e=>{
+    bar.style.display='none';
+    const wrongEnv=(location.port&&location.port!=='5000');
+    st.textContent='请求失败';
+    showErr('错误：'+e.message+(wrongEnv?' —— 你似乎在使用静态预览面板，请用浏览器直接打开 http://localhost:5000 再试':''));
+    btn.disabled=false;btn.textContent='生成牌组';
+  });
+};
+
+/* 新卡学习（生成页逐条学，学一张存一张） */
+let learnQueue=[],learnIdx=0;
+const learnStat=$('learnStat'),learnDeck=$('learnDeck'),learnFront=$('learnFront'),
+      learnBack=$('learnBack'),learnTags=$('learnTags'),learnShowAns=$('learnShowAns'),
+      learnRates=$('learnRates'),learnBox=$('learnBox');
+function learnStart(cards){
+  if(!cards||!cards.length)return;
+  learnQueue=cards.map((c,i)=>({
+    id:(lastDeck+'-'+Date.now()+'-'+i).replace(/\s+/g,'_'),
+    deck:lastDeck,front:c.front,back:c.back,tags:c.tags||[],quiz:c.quiz||null,
+    source:c.source||null
+  }));
+  learnIdx=0;learnBox.hidden=false;showLearn();
+}
+function showLearn(){
+  const c=learnQueue[learnIdx];
+  learnStat.textContent='新卡学习 '+ (learnIdx+1) +' / '+ learnQueue.length;
+  learnDeck.textContent=c.deck;
+  learnFront.textContent=c.front;
+  learnBack.textContent=c.back;learnBack.hidden=true;
+  learnTags.innerHTML=(c.tags||[]).map(t=>`<span class="tag">${esc(t)}</span>`).join('');
+  learnShowAns.hidden=false;learnRates.hidden=true;
+  const src=learnSource,db=learnDoubt;
+  if(c.source){src.hidden=false;src.textContent='来源：'+c.source;}
+  else{src.hidden=true;}
+  const needVerify=(c.flag==='doubt')||((c.back||'').indexOf('需核实')>=0);
+  db.hidden=!needVerify;
+  setupLearnQuiz();
+}
+/* ========== 选择题模式（学习页） ========== */
+const learnQuizToggle=$('learnQuizToggle'),learnQuizArea=$('learnQuizArea'),learnQuizQ=$('learnQuizQ'),
+      learnQuizOpts=$('learnQuizOpts'),learnQuizRes=$('learnQuizRes'),
+      learnSource=$('learnSource'),learnDoubt=$('learnDoubt');
+function learnViewQa(){learnQuizArea.hidden=true;learnFront.hidden=false;learnBack.hidden=true;learnShowAns.hidden=false;learnRates.hidden=true;}
+function learnViewQuiz(){
+  const c=learnQueue[learnIdx];
+  learnFront.hidden=true;learnBack.hidden=true;learnShowAns.hidden=true;learnRates.hidden=true;
+  learnQuizRes.hidden=true;learnQuizArea.hidden=false;
+  renderQuizArea(learnQuizQ,learnQuizOpts,learnQuizRes,c.quiz,()=>{learnBack.hidden=false;learnRates.hidden=false;});
+}
+function setupLearnQuiz(){
+  const c=learnQueue[learnIdx];
+  const hq=hasQuiz(c);
+  learnQuizToggle.hidden=!hq;
+  if(hq){
+    const m=quizMode();
+    learnQuizToggle.querySelectorAll('.qt').forEach(x=>x.classList.toggle('on',x.dataset.q===m));
+    if(m==='quiz')learnViewQuiz();else learnViewQa();
+  }else{learnViewQa();}
+}
+learnQuizToggle.querySelectorAll('.qt').forEach(b=>b.onclick=()=>{
+  const m=b.dataset.q;setQuizMode(m);
+  learnQuizToggle.querySelectorAll('.qt').forEach(x=>x.classList.toggle('on',x.dataset.q===m));
+  if(m==='quiz'&&hasQuiz(learnQueue[learnIdx]))learnViewQuiz();else learnViewQa();
+});
+learnShowAns.onclick=()=>{learnBack.hidden=false;learnShowAns.hidden=true;learnRates.hidden=false;};
+document.querySelectorAll('#learnRates .rate').forEach(b=>b.onclick=async()=>{
+  const c=learnQueue[learnIdx];if(!c)return;
+  try{
+    DB=DB||await idbOpen();
+    const newCard=fsrsSchedule(fsrsNewCard(),+b.dataset.r);
+    await idbPut(DB,{
+      id:c.id,deck:c.deck,front:c.front,back:c.back,tags:c.tags||[],quiz:c.quiz||null,
+      source:c.source||null,flag:c.flag||null,
+      history:[{t:dbgNow(),r:+b.dataset.r}],
+      fsrsCard:newCard||fsrsNewCard(),
+      due:newCard?(newCard.due instanceof Date?newCard.due.getTime():new Date(newCard.due).getTime()):(dbgNow()+86400000),
+      created:dbgNow()
+    });
+  }catch(e){showErr('保存失败：'+e.message);return}
+  learnIdx++;
+  if(learnIdx<learnQueue.length){showLearn();}
+  else{
+    alert('本次 '+learnQueue.length+' 张新卡已学习完毕并保存 🎉 明天起按计划出现在「开始复习」');
+    learnBox.hidden=true;learnQueue=[];lastCards=[];
+    showOk('新卡已全部学习并保存');
+  }
+});
+/* 存到本地：必须先逐条学完（每张卡选记忆程度后自动保存），不可跳过评级 */
+saveBtn.onclick=()=>{
+  if(!lastCards.length){
+    showOk('这批卡片已全部学习并保存，去「开始复习」查看');
+    return;
+  }
+  if(!learnBox.hidden&&learnQueue.length){
+    showOk('正在逐条学习中：每张卡选完记忆程度后自动保存到本地');
+    return;
+  }
+  showOk('开始逐条学习：每张卡选完记忆程度后自动保存到本地（不可跳过）');
+  learnStart(lastCards);
+};
+csvBtn.onclick=()=>{
+  if(!lastCards.length)return;
+  const csv='front,back,tags\n'+lastCards.map(c=>{
+    const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+    return [q(c.front),q(c.back),q((c.tags||[]).join(' '))].join(',');
+  }).join('\n');
+  download('医学记忆卡_'+lastDeck+'.csv', '\ufeff'+csv, 'text/csv;charset=utf-8');
+};
+
+/* ========== 复习 ========== */
+const rvStat=$('rvStat'),revCard=$('revCard'),revDeck=$('revDeck'),
+      revFront=$('revFront'),revBack=$('revBack'),revTags=$('revTags'),
+      showAnsBtn=$('showAnsBtn'),rates=$('rates'),revEmpty=$('revEmpty'),
+      revEmptyText=$('revEmptyText'),reviewAllBtn=$('reviewAllBtn'),
+      deckList=$('deckList'),refreshBtn=$('refreshBtn'),
+      exportJsonBtn=$('exportJsonBtn'),importJsonBtn=$('importJsonBtn'),importFile=$('importFile');
+let queue=[],cur=null,allCards=[],reviewAllMode=false;
+/* 每日额度（localStorage） */
+function getOffset(){return parseInt(localStorage.getItem('mc_debug_offset')||'',10)||0;}
+function dbgNow(){return Date.now()+getOffset()*86400000;}
+function todayStr(){
+  const d=new Date(dbgNow());
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function getLimit(k){return parseInt(localStorage.getItem('mc_limit_'+k)||'',10)||(k==='new'?20:100);}
+function dayDone(k){return parseInt(localStorage.getItem('mc_'+k+'_'+todayStr())||'',10)||0;}
+function localDateStr(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function streakDays(){
+  try{
+    const arr=JSON.parse(localStorage.getItem('mc_active_days')||'[]');
+    const set=new Set(arr);let s=0;const d=new Date();
+    if(!set.has(localDateStr(d)))d.setDate(d.getDate()-1);
+    while(set.has(localDateStr(d))){s++;d.setDate(d.getDate()-1);}
+    return s;
+  }catch(e){return 0;}
+}
+function addDay(k){
+  localStorage.setItem('mc_'+k+'_'+todayStr(),String(dayDone(k)+1));
+  if(k==='rev'){
+    const arr=JSON.parse(localStorage.getItem('mc_active_days')||'[]');
+    if(!arr.includes(todayStr())){arr.push(todayStr());localStorage.setItem('mc_active_days',JSON.stringify(arr));}
+  }
+}
+
+async function loadAll(){
+  DB=DB||await idbOpen();
+  allCards=await idbGetAll(DB);
+}
+function updateStat(){
+  const total=allCards.length;
+  rvStat.textContent='今日复习 '+dayDone('rev')+'/'+getLimit('rev')+' · 连续打卡 '+streakDays()+' 天 · 共 '+total+' 张';
+  const off=getOffset();
+  const tn=$('timeNote');
+  if(off){
+    tn.style.display='block';
+    tn.style.borderColor='var(--danger)';
+    tn.style.color='var(--danger)';
+    tn.textContent='⚠ 调试模式：时间偏移 '+off+' 天（当前模拟日期 '+todayStr()+'）。以下时间均为模拟值！测完请到「调试工具」点「重置」';
+  }else{tn.style.display='none';}
+}
+let expandedDeck=null;
+function renderDeckList(){
+  const map={};
+  allCards.forEach(c=>{map[c.deck]=(map[c.deck]||0)+1;});
+  const entries=Object.entries(map).sort((a,b)=>b[1]-a[1]);
+  deckList.innerHTML=entries.length
+    ? entries.map(([d,n])=>`
+      <div class="deck-item">
+        <span class="deckname" data-deck="${esc(d)}" style="cursor:pointer">${expandedDeck===d?'▾ ':'▸ '}${esc(d)} <span class="cnt">· ${n} 张</span></span>
+        <button class="del" data-deck="${esc(d)}">删除牌组</button>
+      </div>`).join('')
+    : '<p class="hint">还没有保存过卡片。</p>';
+  deckList.querySelectorAll('.deckname').forEach(s=>s.onclick=()=>{
+    expandedDeck=(expandedDeck===s.dataset.deck)?null:s.dataset.deck;
+    renderDeckList();renderCardDetail();
+  });
+  deckList.querySelectorAll('.del').forEach(b=>b.onclick=async()=>{
+    if(!confirm('确定删除牌组「'+b.dataset.deck+'」的所有卡片？'+(b.dataset.deck===''?'':'（可先导出备份）')))return;
+    const ids=allCards.filter(c=>c.deck===b.dataset.deck).map(c=>c.id);
+    for(const id of ids)await idbDel(DB,id);
+    await loadAll();await refreshReview();
+  });
+}
+function renderCardDetail(){
+  const box=$('cardDetail');
+  if(!expandedDeck){box.innerHTML='';return;}
+  const cards=allCards.filter(c=>c.deck===expandedDeck);
+  box.innerHTML=cards.length?cards.map(c=>`
+    <div class="cd-item" data-id="${c.id}">
+      <div class="cf">${esc(c.front)}</div>
+      <div class="tools">
+        <button class="editb">编辑</button>
+        <button class="delb">删除</button>
+      </div>
+    </div>`).join(''):'<p class="hint">牌组为空。</p>';
+  box.querySelectorAll('.editb').forEach(b=>b.onclick=()=>{
+    const item=b.closest('.cd-item');
+    const c=allCards.find(x=>x.id===item.dataset.id);
+    if(!c)return;
+    item.innerHTML=`
+      <textarea class="ef" placeholder="问题">${esc(c.front)}</textarea>
+      <textarea class="eb" placeholder="答案">${esc(c.back)}</textarea>
+      <input class="tagline" placeholder="标签（空格分隔）" value="${esc((c.tags||[]).join(' '))}">
+      <div class="tagpick">${allTags().map(t=>`<button class="tagchip ${(c.tags||[]).includes(t)?'on':''}" data-t="${esc(t)}">${esc(t)}</button>`).join('')}</div>
+      <div class="tools">
+        <button class="doubtb">${c.flag==='doubt'?'✓ 已核实':'⚠ 标记存疑'}</button>
+        <button class="saveb">保存</button><button class="cancelb">取消</button>
+      </div>`;
+    /* 标记存疑/已核实 toggle */
+    item.querySelector('.doubtb').onclick=()=>{
+      const b=item.querySelector('.doubtb');
+      if(c.flag==='doubt'){c.flag=null;b.textContent='⚠ 标记存疑';}
+      else{c.flag='doubt';b.textContent='✓ 已核实';}
+    };
+    /* 标签 chips 点击 toggle（同步到 tagline 输入框） */
+    item.querySelectorAll('.tagpick .tagchip').forEach(ch=>ch.onclick=()=>{
+      const t=ch.dataset.t;
+      const input=item.querySelector('.tagline');
+      const cur=input.value.trim().split(/\s+/).filter(Boolean);
+      const idx=cur.indexOf(t);
+      if(idx>=0){cur.splice(idx,1);ch.classList.remove('on');}
+      else{cur.push(t);ch.classList.add('on');}
+      input.value=cur.join(' ');
+    });
+    item.querySelector('.saveb').onclick=async()=>{
+      c.front=item.querySelector('.ef').value.trim();
+      c.back=item.querySelector('.eb').value.trim();
+      c.tags=item.querySelector('.tagline').value.trim().split(/\s+/).filter(Boolean);
+      if(!c.front){alert('问题不能为空');return}
+      await idbPut(DB,c);
+      await loadAll();renderDeckList();renderCardDetail();
+    };
+    item.querySelector('.cancelb').onclick=()=>renderCardDetail();
+  });
+  box.querySelectorAll('.delb').forEach(b=>b.onclick=async()=>{
+    const item=b.closest('.cd-item');
+    if(!confirm('删除这张卡片？'))return;
+    await idbDel(DB,item.dataset.id);
+    await loadAll();renderDeckList();renderCardDetail();
+  });
+}
+/* ========== 标签库（六科内置 + 用户自定义） ========== */
+const BUILTIN_TAGS=['生理学','生物化学','病理学','内科学','外科学','诊断学'];
+function customTags(){try{return JSON.parse(localStorage.getItem('mc_custom_tags')||'[]');}catch(e){return [];}}
+function setCustomTags(a){localStorage.setItem('mc_custom_tags',JSON.stringify(a));}
+function allTags(){return BUILTIN_TAGS.concat(customTags());}
+function renderTagMgmt(){
+  const box=$('tagMgmtList');
+  box.innerHTML=BUILTIN_TAGS.map(t=>`<button class="tagchip builtin" title="内置标签">${esc(t)}</button>`).join('')+
+    customTags().map(t=>`<button class="tagchip">${esc(t)}<span class="x">×</span></button>`).join('');
+  box.querySelectorAll('.tagchip:not(.builtin)').forEach(b=>b.onclick=()=>{
+    const name=b.childNodes[0].textContent.trim();
+    if(!confirm('删除自定义标签「'+name+'」？（不会删除已打该标签的卡片）'))return;
+    setCustomTags(customTags().filter(x=>x!==name));
+    renderTagMgmt();
+  });
+}
+$('tagAddBtn').onclick=()=>{
+  const v=$('tagNewName').value.trim();
+  if(!v){alert('请输入标签名');return}
+  if(allTags().includes(v)){alert('标签已存在');return}
+  setCustomTags(customTags().concat(v));
+  $('tagNewName').value='';
+  renderTagMgmt();
+};
+renderTagMgmt();
+async function refreshReview(notifyDone){
+  await loadAll();
+  const now=dbgNow();
+  const learned=c=>c.fsrsCard&&c.fsrsCard.reps>0;
+  if(reviewAllMode){
+    /* 「复习全部卡片」= 所有已学过（已评级）的卡，不限到期时间——方便随时温习/测试 */
+    queue=allCards.filter(learned).sort((a,b)=>(a.due||0)-(b.due||0));
+  }else{
+    const revs=allCards.filter(c=>learned(c)&&c.due&&c.due<=now).sort((a,b)=>(a.due||0)-(b.due||0));
+    const revLeft=Math.max(0,getLimit('rev')-dayDone('rev'));
+    queue=revs.slice(0,revLeft);
+  }
+  const gapNote=$('gapNote');
+  if(!reviewAllMode){
+    const dueAll=allCards.filter(c=>learned(c)&&c.due&&c.due<=now).length;
+    let lastRev=0;
+    allCards.forEach(c=>{if(c.fsrsCard&&c.fsrsCard.last_review){const t=new Date(c.fsrsCard.last_review).getTime();if(t>lastRev)lastRev=t;}});
+    const gapDays=lastRev?Math.floor((now-lastRev)/86400000):0;
+    if(gapDays>=2&&dueAll>0){
+      gapNote.style.display='block';
+      gapNote.textContent='你断了 '+gapDays+' 天，攒了 '+dueAll+' 张到期卡。别慌——今天先复习 '+getLimit('rev')+' 张，明天会慢慢跟上，不会越堆越多。';
+    }else{gapNote.style.display='none';}
+  }else{gapNote.style.display='none';}
+  updateStat();renderDeckList();renderCardDetail();
+  if(queue.length){showNext();}else{
+    showEmpty();
+    if(notifyDone)alert('今日复习完成 🎉 明天再来看新到期的卡片吧');
+  }
+}
+function showEmpty(){
+  revCard.hidden=true;rates.hidden=true;showAnsBtn.hidden=true;
+  revEmpty.hidden=false;
+  revEmptyText.textContent=reviewAllMode?'本地还没有卡片。':'今天没有待复习的卡片，休息一下吧。';
+}
+function showNext(){
+  cur=queue.shift();
+  revEmpty.hidden=true;revCard.hidden=false;
+  revDeck.textContent=cur.deck;
+  revFront.textContent=cur.front;
+  revBack.textContent=cur.back;revBack.hidden=true;
+  revTags.innerHTML=(cur.tags||[]).map(t=>`<span class="tag">${esc(t)}</span>`).join('');
+  showAnsBtn.hidden=false;rates.hidden=true;
+  if(cur.source){revSource.hidden=false;revSource.textContent='来源：'+cur.source;}
+  else{revSource.hidden=true;}
+  const needVerify=(cur.flag==='doubt')||((cur.back||'').indexOf('需核实')>=0);
+  revDoubt.hidden=!needVerify;
+  setupReviewQuiz();
+}
+/* ========== 选择题模式（复习页） ========== */
+function hasQuiz(c){return !!(c&&c.quiz&&Array.isArray(c.quiz.options)&&c.quiz.options.length===4&&Number.isInteger(c.quiz.answer)&&c.quiz.answer>=0&&c.quiz.answer<4);}
+function quizMode(){return localStorage.getItem('mc_quiz_mode')==='quiz'?'quiz':'qa';}
+function setQuizMode(m){localStorage.setItem('mc_quiz_mode',m);}
+const revQuizToggle=$('revQuizToggle'),revQuizArea=$('revQuizArea'),revQuizQ=$('revQuizQ'),
+      revQuizOpts=$('revQuizOpts'),revQuizRes=$('revQuizRes'),
+      revSource=$('revSource'),revDoubt=$('revDoubt');
+function renderQuizArea(qEl,optsEl,resEl,quiz,cb){
+  const letters=['A','B','C','D'];
+  qEl.textContent=quiz.question||'';
+  optsEl.innerHTML=quiz.options.map((o,i)=>`<button class="quiz-opt" data-i="${i}">${letters[i]}. ${esc(o)}</button>`).join('');
+  optsEl.querySelectorAll('.quiz-opt').forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.i;
+    const all=optsEl.querySelectorAll('.quiz-opt');
+    all.forEach(x=>x.disabled=true);
+    all[quiz.answer].classList.add('correct');
+    if(i===quiz.answer){resEl.textContent='✓ 回答正确';resEl.className='quiz-res ok';}
+    else{b.classList.add('wrong');resEl.textContent='✗ 正确答案是 '+letters[quiz.answer];resEl.className='quiz-res bad';}
+    resEl.hidden=false;
+    cb&&cb();
+  });
+}
+function reviewViewQa(){revQuizArea.hidden=true;revFront.hidden=false;revBack.hidden=true;showAnsBtn.hidden=false;rates.hidden=true;}
+function reviewViewQuiz(){
+  revFront.hidden=true;revBack.hidden=true;showAnsBtn.hidden=true;rates.hidden=true;
+  revQuizRes.hidden=true;revQuizArea.hidden=false;
+  renderQuizArea(revQuizQ,revQuizOpts,revQuizRes,cur.quiz,()=>{revBack.hidden=false;rates.hidden=false;});
+}
+function setupReviewQuiz(){
+  const hq=hasQuiz(cur);
+  revQuizToggle.hidden=!hq;
+  if(hq){
+    const m=quizMode();
+    revQuizToggle.querySelectorAll('.qt').forEach(x=>x.classList.toggle('on',x.dataset.q===m));
+    if(m==='quiz')reviewViewQuiz();else reviewViewQa();
+  }else{reviewViewQa();}
+}
+revQuizToggle.querySelectorAll('.qt').forEach(b=>b.onclick=()=>{
+  const m=b.dataset.q;setQuizMode(m);
+  revQuizToggle.querySelectorAll('.qt').forEach(x=>x.classList.toggle('on',x.dataset.q===m));
+  if(m==='quiz'&&hasQuiz(cur))reviewViewQuiz();else reviewViewQa();
+});
+showAnsBtn.onclick=()=>{revBack.hidden=false;showAnsBtn.hidden=true;rates.hidden=false;};
+document.querySelectorAll('#rates .rate').forEach(b=>b.onclick=async()=>{
+  if(!cur)return;
+  const rating=+b.dataset.r;
+  const newCard=fsrsSchedule(cur.fsrsCard,rating);
+  if(newCard){
+    cur.fsrsCard=newCard;
+    cur.due=(newCard.due instanceof Date)?newCard.due.getTime():new Date(newCard.due).getTime();
+  }else{
+    cur.due=dbgNow()+(rating>=3?86400000:300000);
+  }
+  addDay('rev');
+  cur.history=cur.history||[];
+  cur.history.push({t:dbgNow(),r:rating});
+  await idbPut(DB,cur);
+  if(queue.length){showNext();updateStat();}else{await refreshReview(true);}
+});
+refreshBtn.onclick=()=>{reviewAllMode=false;refreshReview();};
+reviewAllBtn.onclick=()=>{reviewAllMode=true;refreshReview(true);};
+
+/* 复习设置（每日复习上限） */
+const limitRev=$('limitRev'),saveLimitBtn=$('saveLimitBtn');
+limitRev.value=getLimit('rev');
+saveLimitBtn.onclick=()=>{
+  localStorage.setItem('mc_limit_rev',String(Math.max(0,parseInt(limitRev.value)||0)));
+  refreshReview();alert('每日复习上限已保存');
+};
+
+/* 调试工具（时间偏移 / 模拟打卡 / 造测试卡） */
+const dbgOffset=$('dbgOffset'),dbgApply=$('dbgApply'),dbgReset=$('dbgReset'),
+      dbgStreak=$('dbgStreak'),dbgSeed=$('dbgSeed'),dbgDue=$('dbgDue'),dbgWipe=$('dbgWipe');
+dbgOffset.value=getOffset();
+dbgApply.onclick=()=>{
+  const v=Math.max(-30,Math.min(60,parseInt(dbgOffset.value)||0));
+  localStorage.setItem('mc_debug_offset',String(v));
+  refreshReview();alert('时间已偏移 '+v+' 天，当前模拟日期：'+todayStr());
+};
+dbgDue.onclick=async()=>{
+  try{
+    DB=DB||await idbOpen();
+    await loadAll();
+    let n=0;
+    for(const c of allCards){
+      if(!c.fsrsCard||!c.fsrsCard.reps){
+        /* 空卡（旧版遗留）先按「忘记」补一次调度，保证能进复习队列 */
+        c.fsrsCard=fsrsSchedule(fsrsNewCard(),1)||fsrsNewCard();
+      }
+      c.due=dbgNow()-1; /* 设为立即到期 */
+      await idbPut(DB,c);n++;
+    }
+    await refreshReview();
+    alert('已让 '+n+' 张卡片全部立即到期——现在就能在「开始复习」里看到它们。\n（提示：正常使用请点「重置」恢复偏移 0）');
+  }catch(e){showErr('操作失败：'+e.message);}
+};
+dbgReset.onclick=async()=>{
+  localStorage.removeItem('mc_debug_offset');dbgOffset.value='0';
+  let cleaned=false;
+  if(confirm('是否一并清除调试数据？\n（会删除「调试牌组」的测试卡 + 清空打卡记录）')){
+    await loadAll();
+    const ids=allCards.filter(c=>c.deck==='调试牌组').map(c=>c.id);
+    for(const id of ids)await idbDel(DB,id);
+    localStorage.removeItem('mc_active_days');
+    cleaned=true;
+  }
+  await refreshReview();
+  alert(cleaned?'已还原干净状态（时间归零 + 调试牌组已删 + 打卡已清）':'已重置时间偏移（打卡/复习计数是真实数据，不会被重置）');
+};
+dbgStreak.onclick=()=>{
+  const arr=JSON.parse(localStorage.getItem('mc_active_days')||'[]');
+  const set=new Set(arr);
+  for(let i=4;i>=0;i--){set.add(localDateStr(new Date(dbgNow()-i*86400000)));}
+  localStorage.setItem('mc_active_days',JSON.stringify([...set]));
+  refreshReview();alert('已模拟连续打卡 5 天');
+};
+dbgSeed.onclick=async()=>{
+  DB=DB||await idbOpen();
+  const now=dbgNow();
+  const seed=[
+    {front:'测试卡：AKI 的 48h 肌酐诊断标准？',back:'答案：≥26.5μmol/L\n解析：急性肾损伤快速诊断切点\n关联考点：内科学·肾内·AKI',tags:['调试','肾内']},
+    {front:'测试卡：GFR 的正常值？',back:'答案：约 125 ml/min\n解析：菊粉清除率为测定金标准\n关联考点：生理学·肾脏',tags:['调试','生理']}
+  ];
+  for(let i=0;i<seed.length;i++){
+    const fsrsCard=_fsrs.createEmptyCard(new Date(now-3*86400000));
+    fsrsCard.reps=1;fsrsCard.state=2;
+    fsrsCard.last_review=new Date(now-3*86400000);
+    fsrsCard.due=new Date(now-3600000);
+    await idbPut(DB,{id:'dbg-'+Date.now()+'-'+i,deck:'调试牌组',front:seed[i].front,back:seed[i].back,tags:seed[i].tags,fsrsCard:fsrsCard,due:now-3600000,created:now-3*86400000});
+  }
+  await refreshReview();
+  alert('已造 2 张测试卡（3 天前学的、今天到期）——现在应用偏移 3 天，刷新即可看到断点提示');
+};
+dbgWipe.onclick=async()=>{
+  if(!confirm('⚠️ 将删除本地所有卡片、复习记录、打卡和设置！此操作不可恢复，确定？'))return;
+  if(!confirm('再次确认：真的要清空全部数据吗？'))return;
+  DB=DB||await idbOpen();
+  await idbClear(DB);
+  const keys=[];
+  for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith('mc_'))keys.push(k);}
+  keys.forEach(k=>localStorage.removeItem(k));
+  dbgOffset.value='0';
+  await refreshReview();
+  alert('已清空全部数据，页面回到全新状态（API Key 配置不受影响）');
+};
+
+/* 导出 / 导入 */
+exportJsonBtn.onclick=async()=>{
+  await loadAll();
+  if(!allCards.length){alert('还没有卡片，先去生成并保存吧');return}
+  const stamp=new Date().toISOString().slice(0,10);
+  download('医学记忆卡_备份_'+stamp+'.json',JSON.stringify(allCards,null,1),'application/json');
+};
+importJsonBtn.onclick=()=>importFile.click();
+importFile.onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  try{
+    const arr=JSON.parse(await f.text());
+    if(!Array.isArray(arr)||!arr.length)throw new Error('格式不正确');
+    if(!confirm('导入 '+arr.length+' 张卡片？（将合并到本地，同名卡片会更新）')){importFile.value='';return}
+    DB=DB||await idbOpen();
+    const rows=arr.map(c=>({
+      id:c.id||((c.deck||'import')+'-'+Date.now()+'-'+Math.random().toString(36).slice(2,7)),
+      deck:c.deck||'导入牌组',front:String(c.front||''),back:String(c.back||''),
+      tags:c.tags||[],fsrsCard:c.fsrsCard||fsrsNewCard(),
+      due:c.due||Date.now(),created:c.created||Date.now()
+    }));
+    await idbPutAll(DB,rows);
+    await refreshReview();alert('导入成功：'+rows.length+' 张');
+  }catch(err){alert('导入失败：'+err.message);}
+  importFile.value='';
+};
+
+/* 初始化 */
+(async()=>{
+  try{
+    DB=await idbOpen();
+    await refreshReview();
+  }catch(e){rvStat.textContent='本地存储不可用（可能处于无痕/隐私模式）：抽卡功能正常，但「网页复习/保存」不可用';}
+})();
+</script>
+</body>
+</html>
