@@ -1,0 +1,12 @@
+{
+  "name": "医学记忆卡",
+  "short_name": "医学记忆卡",
+  "description": "AI 抽卡 + 记忆曲线复习：把教材交给 AI，把考点做成卡片",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#2C2A25",
+  "theme_color": "#2C2A25",
+  "icons": [
+    { "src": "/static/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

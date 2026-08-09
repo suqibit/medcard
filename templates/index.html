@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>医学记忆卡 · AI 抽卡 + 网页复习</title>
+<link rel="manifest" href="/static/manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="/static/icon.svg">
 <style>
   :root{
     --bg:#E8D8B1; --card:#F7EFDA; --ink:#2B2924; --sub:#635C4B;
@@ -377,6 +379,7 @@
       <span class="status" id="rvStat">加载中…</span>
       <button class="btn-ghost" id="refreshBtn">刷新</button>
     </div>
+    <div class="gap-note" id="wxNote" style="display:none">⚠ 当前在微信内置浏览器中，聊天缓存可能清空学习数据。建议点右上角「···」→「在浏览器打开」后使用（更稳定，还能添加到手机桌面）。</div>
     <div class="gap-note" id="timeNote" style="display:none"></div>
     <div class="gap-note" id="gapNote" style="display:none"></div>
 
@@ -553,6 +556,44 @@ function idbPutAll(db,arr){return new Promise((res,rej)=>{const tx=db.transactio
 function idbGetAll(db){return new Promise((res,rej)=>{const rq=db.transaction('cards').objectStore('cards').getAll();rq.onsuccess=()=>res(rq.result);rq.onerror=()=>rej(rq.error);});}
 function idbDel(db,id){return new Promise((res,rej)=>{const tx=db.transaction('cards','readwrite');tx.objectStore('cards').delete(id);tx.oncomplete=res;tx.onerror=()=>rej(tx.error);});}
 function idbClear(db){return new Promise((res,rej)=>{const tx=db.transaction('cards','readwrite');tx.objectStore('cards').clear();tx.oncomplete=res;tx.onerror=()=>rej(tx.error);});}
+
+/* ========== 数据备份（防微信/浏览器清存储：IndexedDB + localStorage 双写） ========== */
+let backupTimer=null;
+function saveBackup(){
+  /* 每次写入 IndexedDB 后节流 2 秒备份全量到 localStorage，防止 WebView 清理丢数据 */
+  if(!DB||backupTimer)return;
+  backupTimer=setTimeout(async()=>{
+    backupTimer=null;
+    try{
+      const all=await idbGetAll(DB);
+      if(all&&all.length)localStorage.setItem('mc_backup',JSON.stringify({t:Date.now(),cards:all}));
+    }catch(e){}
+  },2000);
+}
+async function tryRestoreBackup(){
+  /* 启动时：IndexedDB 空但 localStorage 有备份 → 询问恢复 */
+  const bk=localStorage.getItem('mc_backup');
+  if(!bk)return;
+  let data=null;
+  try{data=JSON.parse(bk);}catch(e){return;}
+  if(!data||!Array.isArray(data.cards)||!data.cards.length)return;
+  const cards=await idbGetAll(DB);
+  if(cards&&cards.length)return;
+  const when=new Date(data.t).toLocaleString('zh-CN');
+  if(confirm('检测到上次的数据备份（'+data.cards.length+' 张卡片，备份于 '+when+'）。\n当前存储看起来被清空了，是否恢复？')){
+    try{
+      await idbPutAll(DB,data.cards);
+      return data.cards;
+    }catch(e){}
+  }
+  return null;
+}
+/* 微信内置浏览器检测 → 提示用系统浏览器 */
+(function(){
+  if(/MicroMessenger/i.test(navigator.userAgent||'')){
+    const w=$('wxNote');if(w)w.style.display='block';
+  }
+})();
 
 /* ========== FSRS 调度器（官方 ts-fsrs） ========== */
 const _fsrs = (typeof FSRS!=='undefined') ? FSRS : null;
@@ -778,6 +819,7 @@ document.querySelectorAll('#learnRates .rate').forEach(b=>b.onclick=async()=>{
       due:newCard?(newCard.due instanceof Date?newCard.due.getTime():new Date(newCard.due).getTime()):(dbgNow()+86400000),
       created:dbgNow()
     });
+    saveBackup();
   }catch(e){showErr('保存失败：'+e.message);return}
   learnIdx++;
   if(learnIdx<learnQueue.length){showLearn();}
@@ -930,6 +972,7 @@ function renderCardDetail(){
       c.tags=item.querySelector('.tagline').value.trim().split(/\s+/).filter(Boolean);
       if(!c.front){alert('问题不能为空');return}
       await idbPut(DB,c);
+      saveBackup();
       await loadAll();renderDeckList();renderCardDetail();
     };
     item.querySelector('.cancelb').onclick=()=>renderCardDetail();
@@ -1072,6 +1115,7 @@ document.querySelectorAll('#rates .rate').forEach(b=>b.onclick=async()=>{
   cur.history=cur.history||[];
   cur.history.push({t:dbgNow(),r:rating});
   await idbPut(DB,cur);
+  saveBackup();
   if(queue.length){showNext();updateStat();}else{await refreshReview(true);}
 });
 refreshBtn.onclick=()=>{reviewAllMode=false;refreshReview();};
@@ -1153,6 +1197,7 @@ dbgWipe.onclick=async()=>{
   if(!confirm('再次确认：真的要清空全部数据吗？'))return;
   DB=DB||await idbOpen();
   await idbClear(DB);
+  localStorage.removeItem('mc_backup');
   const keys=[];
   for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith('mc_'))keys.push(k);}
   keys.forEach(k=>localStorage.removeItem(k));
@@ -1183,6 +1228,7 @@ importFile.onchange=async e=>{
       due:c.due||Date.now(),created:c.created||Date.now()
     }));
     await idbPutAll(DB,rows);
+    saveBackup();
     await refreshReview();alert('导入成功：'+rows.length+' 张');
   }catch(err){alert('导入失败：'+err.message);}
   importFile.value='';
@@ -1192,7 +1238,9 @@ importFile.onchange=async e=>{
 (async()=>{
   try{
     DB=await idbOpen();
+    const restored=await tryRestoreBackup();
     await refreshReview();
+    if(restored)showOk('已从备份恢复 '+restored.length+' 张卡片');
   }catch(e){rvStat.textContent='本地存储不可用（可能处于无痕/隐私模式）：抽卡功能正常，但「网页复习/保存」不可用';}
 })();
 
