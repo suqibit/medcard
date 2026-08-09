@@ -87,8 +87,9 @@ SYSTEM_PROMPT = """你是一名医学教育内容专家，擅长将教材/讲义
 4. 医学准确性优先；对不确定的内容标注「需核实」。
 5. 适度添加 tags，如 ["306","生理","循环"]。
 6. 按内容密度生成 5-20 张卡片，宁缺毋滥。
-7. 每张卡附带一个「选择题版」quiz 字段：{"question":"基于本卡知识点的题干","options":["选项A","选项B","选项C","选项D"],"answer":正确选项索引(0-3)}。选项简短清晰，干扰项合理有迷惑性。
+7. 每张卡附带一个「选择题版」quiz 字段：{"question":"基于本卡知识点的题干","options":["选项A","选项B","选项C","选项D","选项E"],"answer":正确选项索引(0-4)}。仿考研真题五选一（A-E），选项简短清晰，干扰项合理有迷惑性。
 8. 每张卡必须带 source 字段：**原样引用**输入资料中最能支撑该卡答案的一句话（不超过 80 字，不得改写或概括），用于用户对照原文核实。
+9. 所有字符串值内部严禁使用英文双引号（会破坏 JSON），引用术语用「」。
 只输出 JSON，结构：{"cards":[{"front":"...","back":"...","tags":["..."],"quiz":{"question":"...","options":["..."],"answer":0},"source":"..."}]}"""
 
 WRONG_PROMPT = """你是一名医学教育内容专家，专门帮助考研学生「把做错的题变成记忆卡」，下次不再错。
@@ -100,11 +101,29 @@ WRONG_PROMPT = """你是一名医学教育内容专家，专门帮助考研学�
 4. tags 必须含「错题」，再加科目/章节标签，如 ["错题","306","内科学"]。
 5. 医学准确性优先；对不确定的内容标注「需核实」。
 6. 生成 1-5 张，宁缺毋滥——一道错题通常 1-2 张就够。
-7. 每张卡附带一个「选择题版」quiz 字段：{"question":"基于该考点的题干","options":["选项A","选项B","选项C","选项D"],"answer":正确选项索引(0-3)}。选项简短清晰，干扰项合理有迷惑性。
+7. 每张卡附带一个「选择题版」quiz 字段：{"question":"基于该考点的题干","options":["选项A","选项B","选项C","选项D","选项E"],"answer":正确选项索引(0-4)}。仿考研真题五选一（A-E），选项简短清晰，干扰项合理有迷惑性。
 8. 每张卡必须带 source 字段：**原样引用**用户粘贴的错题中最能支撑该卡答案的一句话（不超过 80 字，不得改写）。
+9. 所有字符串值内部严禁使用英文双引号（会破坏 JSON），引用术语用「」。
 只输出 JSON，结构：{"cards":[{"front":"...","back":"...","tags":["..."],"quiz":{"question":"...","options":["..."],"answer":0},"source":"..."}]}"""
 
 MODEL_ID = 1607392319
+
+
+def parse_ai_json(content):
+    """容错解析 AI 返回的 JSON：先直解，失败截取最外层花括号再解，仍失败返回 None。"""
+    if not content:
+        return None
+    try:
+        return json.loads(content)
+    except Exception:
+        pass
+    s = content[content.find("{"): content.rfind("}") + 1]
+    if not s:
+        return None
+    try:
+        return json.loads(s)
+    except Exception:
+        return None
 
 
 def ai_extract_cards(text, max_cards=10, mode="text", custom_tags=None):
@@ -148,7 +167,14 @@ def ai_extract_cards(text, max_cards=10, mode="text", custom_tags=None):
     resp = requests.post(DEEPSEEK_URL, headers=headers, json=payload, timeout=120)
     resp.raise_for_status()
     content = resp.json()["choices"][0]["message"]["content"]
-    return json.loads(content).get("cards", [])
+    data = parse_ai_json(content)
+    if not data:
+        # 偶发坏 JSON：原样重试一次
+        resp = requests.post(DEEPSEEK_URL, headers=headers, json=payload, timeout=120)
+        resp.raise_for_status()
+        content = resp.json()["choices"][0]["message"]["content"]
+        data = parse_ai_json(content)
+    return (data or {}).get("cards", [])
 
 
 def rule_extract_cards(text, max_cards=15):

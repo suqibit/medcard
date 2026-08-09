@@ -1014,14 +1014,15 @@ function showNext(){
   setupReviewQuiz();
 }
 /* ========== 选择题模式（复习页） ========== */
-function hasQuiz(c){return !!(c&&c.quiz&&Array.isArray(c.quiz.options)&&c.quiz.options.length===4&&Number.isInteger(c.quiz.answer)&&c.quiz.answer>=0&&c.quiz.answer<4);}
+function hasQuiz(c){return !!(c&&c.quiz&&Array.isArray(c.quiz.options)&&c.quiz.options.length>=4&&c.quiz.options.length<=5&&Number.isInteger(c.quiz.answer)&&c.quiz.answer>=0&&c.quiz.answer<c.quiz.options.length);}
 function quizMode(){return localStorage.getItem('mc_quiz_mode')==='quiz'?'quiz':'qa';}
 function setQuizMode(m){localStorage.setItem('mc_quiz_mode',m);}
 const revQuizToggle=$('revQuizToggle'),revQuizArea=$('revQuizArea'),revQuizQ=$('revQuizQ'),
       revQuizOpts=$('revQuizOpts'),revQuizRes=$('revQuizRes'),
       revSource=$('revSource'),revDoubt=$('revDoubt');
+const QUIZ_LETTERS=['A','B','C','D','E'];
 function renderQuizArea(qEl,optsEl,resEl,quiz,cb){
-  const letters=['A','B','C','D'];
+  const letters=QUIZ_LETTERS.slice(0,quiz.options.length);
   qEl.textContent=quiz.question||'';
   optsEl.innerHTML=quiz.options.map((o,i)=>`<button class="quiz-opt" data-i="${i}">${letters[i]}. ${esc(o)}</button>`).join('');
   optsEl.querySelectorAll('.quiz-opt').forEach(b=>b.onclick=()=>{
