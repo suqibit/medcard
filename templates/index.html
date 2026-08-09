@@ -255,6 +255,7 @@
     .tabs .tab{padding:12px 0;font-size:13.5px}
     .sheet{padding:16px 14px}
     .text-area{min-height:130px;font-size:14px;padding:12px}
+    .upload{line-height:1.7;padding:16px 12px;font-size:12.5px}
     .rev-card{padding:16px 14px}
     .rev-front{font-size:15px;line-height:1.7}
     .rev-back{font-size:13.5px;line-height:1.75}
@@ -298,7 +299,7 @@
         <button class="m on" id="modeText" data-mode="text">教材抽卡</button>
         <button class="m" id="modeWrong" data-mode="wrong">错题制卡</button>
       </div>
-      <div class="upload" id="uploadBox">＋ 或上传你的讲义（.txt / .md / .pdf）</div>
+      <div class="upload" id="uploadBox">＋ 或上传你的讲义（图片/PDF/Word）</div>
       <input type="file" id="fileInput" accept=".txt,.md,.pdf,.docx,.png,.jpg,.jpeg,.webp" style="display:none">
       <div class="field">
         <label id="taLabel">粘贴教材 / 讲义原文</label>
@@ -589,7 +590,7 @@ function setMode(m){
   }else{
     taLabel.textContent='粘贴教材 / 讲义原文';
     ta.placeholder='例：肾小球滤过率(GFR)是评估肾功能的金标准。菊粉清除率可准确测定GFR，正常约125ml/min……';
-    box.textContent='＋ 或上传你的讲义（.txt / .md / .pdf）';
+    box.textContent='＋ 或上传你的讲义（图片/PDF/Word）';
     genBtn.textContent='生成牌组';
     genHint.textContent='数量最多 20 张；内容太少时 AI 宁缺毋滥。';
     if(cardCount.value==='3')cardCount.value='15';
@@ -655,7 +656,7 @@ fi.onchange=e=>{
       .catch(err=>{showErr('PDF 解析失败：'+err.message);fi.value='';});
     return;
   }
-  if(!/\.(txt|md)$/i.test(f.name)){showErr('仅支持 .txt / .md / .pdf / .docx / 图片(png/jpg/webp)');fi.value='';return}
+  if(!/\.(txt|md)$/i.test(f.name)){showErr('仅支持图片 / PDF / Word / 文本（.txt/.md）');fi.value='';return}
   const r=new FileReader();
   r.onload=()=>{ta.value=r.result;st.textContent='已载入：'+f.name;}
   r.readAsText(f);
