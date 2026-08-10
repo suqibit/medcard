@@ -1266,7 +1266,7 @@ importFile.onchange=async e=>{
     const rows=arr.map(c=>({
       id:c.id||((c.deck||'import')+'-'+Date.now()+'-'+Math.random().toString(36).slice(2,7)),
       deck:c.deck||'导入牌组',front:String(c.front||''),back:String(c.back||''),
-      tags:c.tags||[],fsrsCard:c.fsrsCard||fsrsNewCard(),
+      tags:c.tags||[],history:c.history||[],fsrsCard:c.fsrsCard||fsrsNewCard(),
       due:c.due||Date.now(),created:c.created||Date.now()
     }));
     await idbPutAll(DB,rows);
