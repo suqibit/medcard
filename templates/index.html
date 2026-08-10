@@ -28,6 +28,13 @@
   .help-x{position:absolute;top:8px;right:14px;background:none;border:none;font-size:24px;line-height:1;color:var(--sub);cursor:pointer;padding:4px}
   .help-x:hover{color:var(--danger)}
   .help-btns{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
+  .privacybox{position:relative;background:var(--card);border:2px solid var(--accent);max-width:520px;width:100%;padding:30px 28px 24px;box-shadow:0 12px 40px rgba(43,41,36,.35)}
+  .privacybox h3{font-family:"Noto Serif SC",serif;font-size:20px;letter-spacing:1px;margin-bottom:16px;color:var(--accent)}
+  .privacybox p,.privacybox li{font-size:13.5px;line-height:1.9;color:var(--ink)}
+  .privacybox ul{margin:4px 0 12px;padding-left:20px}
+  .privacybox li{margin-bottom:8px}
+  .privacybox .ps{font-size:12px;color:var(--sub);border-top:1px dashed var(--rule);padding-top:10px;margin-top:12px}
+  .privacy-btns{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
   .ocrbox{background:var(--card);border:2px solid var(--accent);max-width:320px;width:100%;padding:34px 28px;text-align:center;box-shadow:0 12px 40px rgba(43,41,36,.35)}
   .spinner{width:38px;height:38px;border:4px solid var(--accent-soft);border-top-color:var(--accent);border-radius:50%;margin:0 auto 18px;animation:spin .9s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
@@ -498,6 +505,23 @@
   </div>
 </div>
 
+<!-- 隐私说明弹窗（首次进入） -->
+<div class="mask" id="privacyMask" hidden>
+  <div class="privacybox" role="dialog" aria-label="隐私与数据说明">
+    <button class="help-x" id="privacyX" title="关闭">&times;</button>
+    <h3>隐私与数据说明</h3>
+    <ul>
+      <li><strong>资料仅在本机处理</strong>：您粘贴、上传的学习资料只会在您的浏览器中用于生成卡片，不会上传至任何服务器</li>
+      <li><strong>数据存储于本地</strong>：卡组与复习记录保存在您的浏览器本地（IndexedDB），仅当前设备可见；清除浏览器数据会导致记录丢失，请定期导出备份</li>
+      <li><strong>内容归您所有</strong>：您生成的所有卡组归您本人所有，本平台不主张任何权利，亦不收集、出售或共享您的个人信息</li>
+    </ul>
+    <p class="ps">本网站仅提供学习工具，不提供任何医疗服务；健康相关问题请以医院及专业医生意见为准。</p>
+    <div class="privacy-btns">
+      <button class="btn" id="privacyOk">知道了，开始使用</button>
+    </div>
+  </div>
+</div>
+
 <script src="/static/vendor/ts-fsrs.umd.js"></script>
 <script>
 /* ========== 通用 ========== */
@@ -538,6 +562,16 @@ helpMonth.onclick=()=>{                           /* 一月内不提醒 */
   helpMask.hidden=true;
 };
 helpOff.onclick=()=>{localStorage.setItem('mc_help_off','1');helpMask.hidden=true;};
+
+/* ========== 隐私说明弹窗（仅首次进入展示一次） ========== */
+const privacyMask=$('privacyMask');
+function closePrivacy(){privacyMask.hidden=true;}
+if(localStorage.getItem('mc_privacy_ack')!=='1'){
+  privacyMask.hidden=false;
+  localStorage.setItem('mc_privacy_ack','1');   /* 展示即记住，避免每次刷新都弹 */
+}
+$('privacyOk').onclick=closePrivacy;
+$('privacyX').onclick=closePrivacy;
 
 /* ========== IndexedDB 层 ========== */
 let DB=null;
