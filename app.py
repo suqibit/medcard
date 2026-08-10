@@ -253,6 +253,8 @@ def generate():
     print(f">>> /generate key={'SET' if DEEPSEEK_KEY else 'NONE'}", flush=True)
     data = request.get_json(force=True, silent=True) or {}
     text = (data.get("text") or "").strip()
+    if len(text) > 30000:
+        text = text[:30000]  # 超长截断：防 DeepSeek 超时/超上下文（前端同步限制）
     deck_name = (data.get("deck_name") or "医学记忆卡").strip()[:40]
     if not text:
         return jsonify({"error": "请输入或上传内容"}), 400
@@ -411,15 +413,23 @@ def zhipu_ocr_image(data, mime):
         ],
         "temperature": 0.1,
     }
-    resp = requests.post(ZHIPU_URL, headers={"Authorization": f"Bearer {ZHIPU_KEY}"}, json=payload, timeout=120)
-    resp.raise_for_status()
+    resp = None
+    for attempt in range(2):
+        try:
+            resp = requests.post(ZHIPU_URL, headers={"Authorization": f"Bearer {ZHIPU_KEY}"}, json=payload, timeout=120)
+            resp.raise_for_status()
+            break
+        except Exception:
+            # 免费模型偶发限流/抖动：重试一次，仍失败则抛给上层
+            if attempt == 1:
+                raise
     content = resp.json()["choices"][0]["message"]["content"].strip()
     return clean_ocr_text(content)
 
 
 @app.route("/ocr", methods=["POST"])
 def ocr():
-    """上传图片 → 智谱免费视觉模型(glm-4v-flash)提取文字 → 返回（限 10MB）"""
+    """上传图片 → 智谱免费视觉模型(glm-4v-flash)提取文字 → 返回（限 4MB）"""
     f = request.files.get("file")
     if not f:
         return jsonify({"error": "请上传图片"}), 400
@@ -441,7 +451,7 @@ def ocr():
 if __name__ == "__main__":
     print(
         f">>> STARTUP key={'SET' if DEEPSEEK_KEY else 'NONE'} "
-        f"prefix={(DEEPSEEK_KEY[:8] if DEEPSEEK_KEY else '-')}",
+        f"zhipu={'SET' if ZHIPU_KEY else 'NONE'}",
         flush=True,
     )
     app.run(host="127.0.0.1", port=5000, debug=False)

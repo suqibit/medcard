@@ -311,7 +311,7 @@
       <input type="file" id="fileInput" accept=".txt,.md,.pdf,.docx,.png,.jpg,.jpeg,.webp" style="display:none">
       <div class="field">
         <label id="taLabel">粘贴教材 / 讲义原文</label>
-        <textarea id="textArea" placeholder="例：肾小球滤过率(GFR)是评估肾功能的金标准。菊粉清除率可准确测定GFR，正常约125ml/min……"></textarea>
+        <textarea id="textArea" maxlength="30000" placeholder="例：肾小球滤过率(GFR)是评估肾功能的金标准。菊粉清除率可准确测定GFR，正常约125ml/min……"></textarea>
       </div>
       <div class="field">
         <div class="row" style="align-items:flex-end">
@@ -934,7 +934,7 @@ function renderCardDetail(){
   if(!expandedDeck){box.innerHTML='';return;}
   const cards=allCards.filter(c=>c.deck===expandedDeck);
   box.innerHTML=cards.length?cards.map(c=>`
-    <div class="cd-item" data-id="${c.id}">
+    <div class="cd-item" data-id="${esc(c.id)}">
       <div class="cf">${esc(c.front)}</div>
       <div class="tools">
         <button class="editb">编辑</button>
@@ -1039,7 +1039,9 @@ async function refreshReview(notifyDone){
   updateStat();renderDeckList();renderCardDetail();
   if(queue.length){showNext();}else{
     showEmpty();
-    if(notifyDone)alert('今日复习完成 🎉 明天再来看新到期的卡片吧');
+    if(notifyDone&&(reviewAllMode?allCards.some(learned):true)){
+      alert('今日复习完成 🎉 明天再来看新到期的卡片吧');
+    }
   }
 }
 function showEmpty(){
@@ -1108,19 +1110,21 @@ showAnsBtn.onclick=()=>{revBack.hidden=false;showAnsBtn.hidden=true;rates.hidden
 document.querySelectorAll('#rates .rate').forEach(b=>b.onclick=async()=>{
   if(!cur)return;
   const rating=+b.dataset.r;
-  const newCard=fsrsSchedule(cur.fsrsCard,rating);
-  if(newCard){
-    cur.fsrsCard=newCard;
-    cur.due=(newCard.due instanceof Date)?newCard.due.getTime():new Date(newCard.due).getTime();
-  }else{
-    cur.due=dbgNow()+(rating>=3?86400000:300000);
-  }
-  addDay('rev');
-  cur.history=cur.history||[];
-  cur.history.push({t:dbgNow(),r:rating});
-  await idbPut(DB,cur);
-  saveBackup();
-  if(queue.length){showNext();updateStat();}else{await refreshReview(true);}
+  try{
+    const newCard=fsrsSchedule(cur.fsrsCard,rating);
+    if(newCard){
+      cur.fsrsCard=newCard;
+      cur.due=(newCard.due instanceof Date)?newCard.due.getTime():new Date(newCard.due).getTime();
+    }else{
+      cur.due=dbgNow()+(rating>=3?86400000:300000);
+    }
+    addDay('rev');
+    cur.history=cur.history||[];
+    cur.history.push({t:dbgNow(),r:rating});
+    await idbPut(DB,cur);
+    saveBackup();
+    if(queue.length){showNext();updateStat();}else{await refreshReview(true);}
+  }catch(e){showErr('保存失败：'+e.message);}
 });
 refreshBtn.onclick=()=>{reviewAllMode=false;refreshReview();};
 reviewAllBtn.onclick=()=>{reviewAllMode=true;refreshReview(true);};
