@@ -21,7 +21,7 @@
   color: #6B5B45;
   border-radius: 10rpx;
 }
-.mode-btn.active { background: #0E5A4A; color: #F5EFE6; }
+.mode-btn.active { background: #6B5B45; color: #F5EFE6; }
 
 .input-area {
   width: 100%;
@@ -60,7 +60,7 @@
   font-size: 24rpx;
   margin-left: 10rpx;
 }
-.opt-btn.active { background: #0E5A4A; color: #F5EFE6; }
+.opt-btn.active { background: #6B5B45; color: #F5EFE6; }
 
 .preview-item {
   border-bottom: 1rpx dashed #E3D9C8;

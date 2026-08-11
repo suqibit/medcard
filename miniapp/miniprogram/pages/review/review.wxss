@@ -18,7 +18,7 @@
   margin: 0 8rpx;
 }
 .mode-pill.active {
-  background: #0E5A4A;
+  background: #6B5B45;
   color: #F5EFE6;
 }
 

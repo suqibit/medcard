@@ -22,7 +22,7 @@
   font-size: 24rpx;
   margin-right: 14rpx;
 }
-.filter-tag.active { background: #0E5A4A; color: #F5EFE6; }
+.filter-tag.active { background: #6B5B45; color: #F5EFE6; }
 
 .rec-front { font-size: 30rpx; font-weight: 600; color: #4A3F32; }
 .rec-meta { margin-top: 8rpx; font-size: 22rpx; }
