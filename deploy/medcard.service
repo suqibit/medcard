@@ -1,0 +1,13 @@
+[Unit]
+Description=MedCard Flask App (医学记忆卡)
+After=network.target
+
+[Service]
+WorkingDirectory=/opt/medcard
+EnvironmentFile=/opt/medcard/.env
+ExecStart=/opt/medcard/venv/bin/gunicorn -w 2 -b 127.0.0.1:5000 --timeout 120 app:app
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
