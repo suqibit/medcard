@@ -122,3 +122,45 @@
   padding: 16rpx 20rpx;
   margin: 8rpx 0 24rpx;
 }
+
+/* 标签管理入口 */
+.tag-mgmt-link {
+  color: #0E5A4A;
+  font-size: 24rpx;
+  margin-left: 12rpx;
+  padding: 4rpx 10rpx;
+  border: 1rpx solid #0E5A4A;
+  border-radius: 8rpx;
+}
+.tag-mgmt-link:active { opacity: 0.7; }
+
+/* 标签管理弹窗 */
+.tag-input-row { display: flex; align-items: center; margin: 12rpx 0 16rpx; }
+.tag-input {
+  flex: 1;
+  background: #FFFDF8;
+  border: 1rpx solid #E3D9C8;
+  border-radius: 8rpx;
+  padding: 10rpx 14rpx;
+  font-size: 26rpx;
+}
+.tag-add-btn {
+  background: #6B5B45;
+  color: #F5EFE6;
+  border-radius: 8rpx;
+  padding: 10rpx 24rpx;
+  font-size: 26rpx;
+  margin-left: 12rpx;
+}
+.tag-list { margin-bottom: 16rpx; }
+.tag-mgmt-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8rpx 0;
+  border-bottom: 1rpx dashed #E3D9C8;
+}
+.tag-del { color: #A33B2E; font-size: 24rpx; padding: 4rpx 8rpx; }
+
+/* 底部数据提示 */
+.data-note { margin-top: 32rpx; }

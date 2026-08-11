@@ -115,7 +115,7 @@ page {
 [hidden] { display: none !important; }
 
 /* 隐私弹窗（全局：首页/复习页共用） */
-.privacy-mask {
+.privacy-mask, .modal-mask {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(43, 38, 32, 0.55);
@@ -124,7 +124,7 @@ page {
   align-items: center;
   justify-content: center;
 }
-.privacy-box {
+.privacy-box, .modal-box {
   background: #FFFDF8;
   border-radius: 20rpx;
   padding: 40rpx 32rpx;
@@ -132,21 +132,21 @@ page {
   max-height: 80vh;
   overflow-y: auto;
 }
-.privacy-title {
+.privacy-title, .modal-title {
   font-size: 34rpx;
   font-weight: 600;
   color: #4A3F32;
   text-align: center;
   margin-bottom: 24rpx;
 }
-.privacy-item {
+.privacy-item, .modal-item {
   font-size: 26rpx;
   color: #4A3F32;
   line-height: 1.7;
   margin-bottom: 18rpx;
 }
 .privacy-strong { font-weight: 600; color: #2B2620; }
-.privacy-note {
+.privacy-note, .modal-note {
   font-size: 24rpx;
   color: #6B5B45;
   background: #F0E7D6;

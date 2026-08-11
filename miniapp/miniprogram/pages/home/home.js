@@ -22,19 +22,62 @@ Page({
     uploadLeft: 0,
     stats: { total: 0, due: 0, new: 0, streak: 0 },
     placeholder: '粘贴教材/讲义内容，或拍错题照片、上传 PDF/Word…',
-    privacyShow: false
+    privacyShow: false,
+    helpShow: false,
+    tagMgmtShow: false,
+    tagList: [],
+    tagNewInput: ''
   },
 
   onLoad() {
-    // 首次进入：隐私与数据说明弹窗
-    if (wx.getStorageSync('mc_privacy_ack') !== '1') {
-      this.setData({ privacyShow: true });
-    }
+    const privacyAck = wx.getStorageSync('mc_privacy_ack') === '1';
+    this.setData({
+      privacyShow: !privacyAck,
+      // 隐私确认过、但没看过新手引导 → 显示帮助
+      helpShow: privacyAck && wx.getStorageSync('mc_help_ack') !== '1'
+    });
   },
 
   ackPrivacy() {
     wx.setStorageSync('mc_privacy_ack', '1');
-    this.setData({ privacyShow: false });
+    this.setData({
+      privacyShow: false,
+      helpShow: wx.getStorageSync('mc_help_ack') !== '1'
+    });
+  },
+
+  ackHelp() {
+    wx.setStorageSync('mc_help_ack', '1');
+    this.setData({ helpShow: false });
+  },
+
+  // ---------- 自定义标签管理 ----------
+  openTagMgmt() {
+    this.setData({ tagMgmtShow: true, tagList: db.getCustomTags(), tagNewInput: '' });
+  },
+  closeTagMgmt() {
+    this.setData({ tagMgmtShow: false });
+  },
+  onTagNewInput(e) {
+    this.setData({ tagNewInput: e.detail.value });
+  },
+  addTag() {
+    const t = (this.data.tagNewInput || '').trim();
+    if (!t) return;
+    const list = db.getCustomTags();
+    if (list.includes(t)) {
+      this.setData({ tagNewInput: '' });
+      return;
+    }
+    const next = list.concat(t).slice(0, 30);
+    db.setCustomTags(next);
+    this.setData({ tagList: next, tagNewInput: '' });
+  },
+  delTag(e) {
+    const t = e.currentTarget.dataset.tag;
+    const next = db.getCustomTags().filter(x => x !== t);
+    db.setCustomTags(next);
+    this.setData({ tagList: next });
   },
 
   onShow() {

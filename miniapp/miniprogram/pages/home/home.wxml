@@ -59,6 +59,7 @@
     </view>
     <view class="input-row">
       <view class="muted">自定义标签（逗号分隔，可选）</view>
+      <view class="tag-mgmt-link" bindtap="openTagMgmt">管理</view>
       <input class="deck-input" value="{{customTags}}" bindinput="onTagsInput" placeholder="如 306,内科学" />
     </view>
 
@@ -100,6 +101,9 @@
     <view class="muted">粘贴教材内容或拍错题照片，让 AI 帮你生成记忆卡；生成后每天 10 分钟复习，不堆积、断了能捡回。</view>
   </view>
 
+  <!-- 数据本地提示 -->
+  <view class="note data-note">📌 卡片与复习记录仅保存在本机小程序中，清除小程序数据会全部丢失，请留意</view>
+
   <!-- 首次进入：隐私与数据说明弹窗 -->
   <view class="privacy-mask" wx:if="{{privacyShow}}">
     <view class="privacy-box">
@@ -115,6 +119,42 @@
       </view>
       <view class="privacy-note">本小程序仅提供学习工具，不提供任何医疗服务；健康相关问题请以医院及专业医生意见为准。</view>
       <view class="btn-primary" bindtap="ackPrivacy">知道了，开始使用</view>
+    </view>
+  </view>
+
+  <!-- 新手引导：复习时间怎么算 -->
+  <view class="modal-mask" wx:if="{{helpShow}}">
+    <view class="modal-box">
+      <view class="modal-title">复习时间是怎么算的？</view>
+      <view class="modal-item">你每次复习后选的「忘记 / 困难 / 记得 / 简单」，系统会据此安排这张卡下次出现的时间：</view>
+      <view class="modal-item">
+        <text class="privacy-strong">首次学习后</text>：忘记→明天 · 困难→2 天后 · 记得→3 天后 · 简单→8 天后
+      </view>
+      <view class="modal-item"><text class="privacy-strong">越熟练间隔越长</text>——熟的知识不浪费你时间；<text class="privacy-strong">越生疏出现越频繁</text>——趁热打铁巩固</view>
+      <view class="modal-item">只有<text class="privacy-strong">到期</text>的卡才会出现在复习页；每天有复习上限，不会堆积</view>
+      <view class="modal-item">断了好几天回来也不怕：系统会提示你攒了多少，慢慢跟上，<text class="privacy-strong">不会越堆越多</text></view>
+      <view class="modal-note">这一切由算法自动调度（Anki 同款），你只管如实自评。</view>
+      <view class="btn-primary" bindtap="ackHelp">知道了</view>
+    </view>
+  </view>
+
+  <!-- 自定义标签管理 -->
+  <view class="modal-mask" wx:if="{{tagMgmtShow}}">
+    <view class="modal-box">
+      <view class="modal-title">自定义标签管理</view>
+      <view class="modal-item">生成卡片时 AI 会优先匹配这些标签（最多 30 个）</view>
+      <view class="tag-input-row">
+        <input class="tag-input" value="{{tagNewInput}}" bindinput="onTagNewInput" placeholder="新标签，如 306" />
+        <view class="tag-add-btn" bindtap="addTag">添加</view>
+      </view>
+      <view class="tag-list" wx:if="{{tagList.length > 0}}">
+        <view wx:for="{{tagList}}" wx:key="*this" class="tag-mgmt-item">
+          <text class="tag">{{item}}</text>
+          <text class="tag-del" data-tag="{{item}}" bindtap="delTag">✕ 删除</text>
+        </view>
+      </view>
+      <view class="modal-item muted" wx:else>还没有自定义标签</view>
+      <view class="btn-primary" bindtap="closeTagMgmt">完成</view>
     </view>
   </view>
 
