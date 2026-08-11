@@ -125,6 +125,7 @@ page {
   justify-content: center;
 }
 .privacy-box, .modal-box {
+  position: relative;
   background: #FFFDF8;
   border-radius: 20rpx;
   padding: 40rpx 32rpx;
