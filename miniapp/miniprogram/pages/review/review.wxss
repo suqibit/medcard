@@ -18,7 +18,7 @@
   margin: 0 8rpx;
 }
 .mode-pill.active {
-  background: #6B5B45;
+  background: #0E5A4A;
   color: #F5EFE6;
 }
 
@@ -59,12 +59,12 @@
   font-size: 27rpx;
 }
 .quiz-opt.correct {
-  background: #DFEEDF;
-  border-color: #2F6B3E;
-  color: #2F6B3E;
+  background: #DCE6DE;
+  border-color: #0E5A4A;
+  color: #0E5A4A;
 }
 .quiz-res { font-size: 28rpx; font-weight: 600; margin-top: 8rpx; }
-.ok-text { color: #2F6B3E; }
+.ok-text { color: #0E5A4A; }
 .warn-text { color: #A33B2E; }
 
 /* 评级 */
@@ -80,6 +80,6 @@
 }
 .r1 { background: #C0392B; }
 .r2 { background: #D68910; }
-.r3 { background: #2F6B3E; }
+.r3 { background: #0E5A4A; }
 .r4 { background: #1A5276; }
 .rate-label { text-align: center; }

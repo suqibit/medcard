@@ -18,7 +18,7 @@ page {
 
 /* 主按钮 */
 .btn-primary {
-  background: #6B5B45;
+  background: #0E5A4A;
   color: #F5EFE6;
   border-radius: 12rpx;
   font-size: 30rpx;
@@ -55,8 +55,9 @@ page {
 /* 标签 */
 .tag {
   display: inline-block;
-  background: #E8DFCF;
-  color: #6B5B45;
+  background: #DCE6DE;
+  color: #0E5A4A;
+  border: 1rpx solid #0E5A4A;
   font-size: 22rpx;
   border-radius: 8rpx;
   padding: 4rpx 14rpx;
@@ -85,8 +86,8 @@ page {
 
 /* 成功提示条 */
 .ok {
-  background: #DFEEDF;
-  color: #2F6B3E;
+  background: #DCE6DE;
+  color: #0E5A4A;
   font-size: 24rpx;
   border-radius: 10rpx;
   padding: 14rpx 20rpx;

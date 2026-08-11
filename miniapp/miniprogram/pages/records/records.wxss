@@ -5,12 +5,12 @@
 .weak-dot { width: 16rpx; height: 16rpx; border-radius: 50%; margin-right: 14rpx; }
 .weak-dot.red { background: #C0392B; }
 .weak-dot.yellow { background: #D68910; }
-.weak-dot.green { background: #2F6B3E; }
+.weak-dot.green { background: #0E5A4A; }
 .weak-tag { flex: 1; font-size: 26rpx; color: #4A3F32; }
 .weak-rate { font-size: 26rpx; font-weight: 600; }
 .weak-rate.red { color: #C0392B; }
 .weak-rate.yellow { color: #D68910; }
-.weak-rate.green { color: #2F6B3E; }
+.weak-rate.green { color: #0E5A4A; }
 
 .tag-scroll { white-space: nowrap; padding: 8rpx 24rpx; }
 .filter-tag {
@@ -22,7 +22,7 @@
   font-size: 24rpx;
   margin-right: 14rpx;
 }
-.filter-tag.active { background: #6B5B45; color: #F5EFE6; }
+.filter-tag.active { background: #0E5A4A; color: #F5EFE6; }
 
 .rec-front { font-size: 30rpx; font-weight: 600; color: #4A3F32; }
 .rec-meta { margin-top: 8rpx; font-size: 22rpx; }
