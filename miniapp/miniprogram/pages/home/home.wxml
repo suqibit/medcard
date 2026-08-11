@@ -62,8 +62,8 @@
       <input class="deck-input" value="{{customTags}}" bindinput="onTagsInput" placeholder="如 306,内科学" />
     </view>
 
-    <view class="btn-secondary" bindtap="chooseImage" wx:if="{{mode === 'wrong'}}">
-      {{ocrLoading ? '识别中…' : '📷 拍照识别错题（今日剩 ' + ocrLeft + ' 次）'}}
+    <view class="btn-secondary" bindtap="chooseImage">
+      {{ocrLoading ? '识别中…' : '📷 拍照/传图识别文字（今日剩 ' + ocrLeft + ' 次）'}}
     </view>
     <view class="btn-secondary" bindtap="chooseFile">
       {{uploadLoading ? '解析中…' : '📄 上传 PDF / Word（今日剩 ' + uploadLeft + ' 次）'}}

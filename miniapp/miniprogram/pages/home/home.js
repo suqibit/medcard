@@ -112,7 +112,7 @@ Page({
             app2.setData({
               ocrLoading: false,
               inputText: r2.text || '',
-              mode: 'wrong',
+              // 保持当前模式：学习新卡拍教材页 = 继续 text；错题制卡拍错题 = wrong（用户自行切换）
               okMsg: '识别完成，已填入下方输入框（可修改）'
             });
           },
