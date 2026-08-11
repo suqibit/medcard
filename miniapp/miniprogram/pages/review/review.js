@@ -25,12 +25,21 @@ Page({
     done: false,
     doneMsg: '',
     streak: 0,
-    errMsg: ''
+    errMsg: '',
+    privacyShow: false
   },
 
   onLoad() {
-    this.setData({ quizModePref: wx.getStorageSync('mc_quiz_mode') === 'quiz' });
+    this.setData({
+      quizModePref: wx.getStorageSync('mc_quiz_mode') === 'quiz',
+      privacyShow: wx.getStorageSync('mc_privacy_ack') !== '1'
+    });
     this.buildQueue();
+  },
+
+  ackPrivacy() {
+    wx.setStorageSync('mc_privacy_ack', '1');
+    this.setData({ privacyShow: false });
   },
 
   // 切换 问答/选择题 模式

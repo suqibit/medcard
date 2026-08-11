@@ -112,3 +112,44 @@ page {
 
 /* 隐藏（兜底，防 display 覆盖） */
 [hidden] { display: none !important; }
+
+/* 隐私弹窗（全局：首页/复习页共用） */
+.privacy-mask {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(43, 38, 32, 0.55);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.privacy-box {
+  background: #FFFDF8;
+  border-radius: 20rpx;
+  padding: 40rpx 32rpx;
+  margin: 0 40rpx;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+.privacy-title {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #4A3F32;
+  text-align: center;
+  margin-bottom: 24rpx;
+}
+.privacy-item {
+  font-size: 26rpx;
+  color: #4A3F32;
+  line-height: 1.7;
+  margin-bottom: 18rpx;
+}
+.privacy-strong { font-weight: 600; color: #2B2620; }
+.privacy-note {
+  font-size: 24rpx;
+  color: #6B5B45;
+  background: #F0E7D6;
+  border-radius: 10rpx;
+  padding: 16rpx 20rpx;
+  margin: 8rpx 0 24rpx;
+}
