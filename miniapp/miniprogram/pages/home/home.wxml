@@ -100,4 +100,22 @@
     <view class="muted">粘贴教材内容或拍错题照片，让 AI 帮你生成记忆卡；生成后每天 10 分钟复习，不堆积、断了能捡回。</view>
   </view>
 
+  <!-- 首次进入：隐私与数据说明弹窗 -->
+  <view class="privacy-mask" wx:if="{{privacyShow}}">
+    <view class="privacy-box">
+      <view class="privacy-title">隐私与数据说明</view>
+      <view class="privacy-item">
+        <text class="privacy-strong">资料用途</text>：您粘贴的文字、上传的图片与文件仅用于生成记忆卡（文字会发送至 AI 服务进行生成），不做任何其他用途
+      </view>
+      <view class="privacy-item">
+        <text class="privacy-strong">数据存储于本地</text>：卡组与复习记录保存在您手机的小程序本地，仅当前设备可见；清除小程序数据会导致记录丢失，请留意备份
+      </view>
+      <view class="privacy-item">
+        <text class="privacy-strong">内容归您所有</text>：您生成的所有卡组归您本人所有，本平台不主张任何权利，亦不收集、出售或共享您的个人信息
+      </view>
+      <view class="privacy-note">本小程序仅提供学习工具，不提供任何医疗服务；健康相关问题请以医院及专业医生意见为准。</view>
+      <view class="btn-primary" bindtap="ackPrivacy">知道了，开始使用</view>
+    </view>
+  </view>
+
 </view>

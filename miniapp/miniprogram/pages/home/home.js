@@ -21,7 +21,20 @@ Page({
     ocrLeft: 0,
     uploadLeft: 0,
     stats: { total: 0, due: 0, new: 0, streak: 0 },
-    placeholder: '粘贴教材/讲义内容，或拍错题照片、上传 PDF/Word…'
+    placeholder: '粘贴教材/讲义内容，或拍错题照片、上传 PDF/Word…',
+    privacyShow: false
+  },
+
+  onLoad() {
+    // 首次进入：隐私与数据说明弹窗
+    if (wx.getStorageSync('mc_privacy_ack') !== '1') {
+      this.setData({ privacyShow: true });
+    }
+  },
+
+  ackPrivacy() {
+    wx.setStorageSync('mc_privacy_ack', '1');
+    this.setData({ privacyShow: false });
   },
 
   onShow() {
