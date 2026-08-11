@@ -1,0 +1,103 @@
+<!-- pages/home/home.wxml - 首页 -->
+<view class="page">
+
+  <!-- 复习入口卡片 -->
+  <view class="card" wx:if="{{stats.total > 0}}">
+    <view class="stat-row">
+      <view class="stat-item">
+        <view class="stat-num due">{{stats.due}}</view>
+        <view class="stat-label">今日到期</view>
+      </view>
+      <view class="stat-item">
+        <view class="stat-num">{{stats.new}}</view>
+        <view class="stat-label">待学习</view>
+      </view>
+      <view class="stat-item">
+        <view class="stat-num">{{stats.streak}}</view>
+        <view class="stat-label">连续打卡</view>
+      </view>
+      <view class="stat-item">
+        <view class="stat-num">{{stats.total}}</view>
+        <view class="stat-label">卡片总数</view>
+      </view>
+    </view>
+    <view class="btn-primary" bindtap="startReview">开始复习</view>
+  </view>
+
+  <!-- 生成区 -->
+  <view class="section-title">生成卡片</view>
+
+  <view class="mode-switch">
+    <view class="mode-btn {{mode === 'text' ? 'active' : ''}}" data-mode="text" bindtap="switchMode">学习新卡</view>
+    <view class="mode-btn {{mode === 'wrong' ? 'active' : ''}}" data-mode="wrong" bindtap="switchMode">错题制卡</view>
+  </view>
+
+  <view class="card">
+    <textarea
+      class="input-area"
+      value="{{inputText}}"
+      bindinput="onInput"
+      placeholder="{{placeholder}}"
+      maxlength="30000"
+      auto-height
+    />
+    <view class="input-row">
+      <view class="muted">牌组名（可选）</view>
+      <input class="deck-input" value="{{deckName}}" bindinput="onDeckInput" placeholder="默认牌组" />
+    </view>
+    <view class="input-row">
+      <view class="muted">最大卡片数</view>
+      <view class="opt-group">
+        <view
+          wx:for="{{maxCardsOptions}}"
+          wx:key="*this"
+          class="opt-btn {{maxCards === item ? 'active' : ''}}"
+          data-v="{{item}}"
+          bindtap="onMaxCards"
+        >{{item}}</view>
+      </view>
+    </view>
+    <view class="input-row">
+      <view class="muted">自定义标签（逗号分隔，可选）</view>
+      <input class="deck-input" value="{{customTags}}" bindinput="onTagsInput" placeholder="如 306,内科学" />
+    </view>
+
+    <view class="btn-secondary" bindtap="chooseImage" wx:if="{{mode === 'wrong'}}">
+      {{ocrLoading ? '识别中…' : '📷 拍照识别错题（今日剩 ' + ocrLeft + ' 次）'}}
+    </view>
+    <view class="btn-secondary" bindtap="chooseFile">
+      {{uploadLoading ? '解析中…' : '📄 上传 PDF / Word（今日剩 ' + uploadLeft + ' 次）'}}
+    </view>
+
+    <view class="btn-primary {{loading ? 'disabled' : ''}}" bindtap="generate">
+      {{loading ? 'AI 生成中，约 10-30 秒…' : '✨ AI 生成卡片（今日剩 ' + genLeft + ' 次）'}}
+    </view>
+
+    <view class="note">内容仅用于生成记忆卡，AI 生成结果请对照原文核实（卡片均带来源引用）</view>
+  </view>
+
+  <!-- 提示条 -->
+  <view class="warn" wx:if="{{errMsg}}">{{errMsg}}</view>
+  <view class="ok" wx:if="{{okMsg}}">{{okMsg}}</view>
+
+  <!-- 生成预览 -->
+  <view class="card" wx:if="{{cardsPreview.length > 0}}">
+    <view class="section-title">预览（{{cardsPreview.length}} 张）</view>
+    <view wx:for="{{cardsPreview}}" wx:key="index" class="preview-item">
+      <view class="preview-front">{{item.front}}</view>
+      <view class="preview-back">{{item.back}}</view>
+      <view class="preview-tags">
+        <text class="tag" wx:for="{{item.tags}}" wx:for-item="tg" wx:key="*this">{{tg}}</text>
+      </view>
+    </view>
+    <view class="btn-primary" bindtap="savePreview">保存这 {{cardsPreview.length}} 张卡片</view>
+    <view class="btn-secondary" bindtap="discardPreview">不要了</view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="card" wx:if="{{stats.total === 0 && cardsPreview.length === 0}}">
+    <view class="empty-text">还没有卡片</view>
+    <view class="muted">粘贴教材内容或拍错题照片，让 AI 帮你生成记忆卡；生成后每天 10 分钟复习，不堆积、断了能捡回。</view>
+  </view>
+
+</view>

@@ -1,0 +1,66 @@
+/* pages/review/review.wxss */
+.page { padding-bottom: 60rpx; }
+.center-text { text-align: center; margin: 8rpx 0; }
+.progress { text-align: center; margin-top: 20rpx; }
+
+.done-title { font-size: 34rpx; font-weight: 600; color: #2F6B3E; padding: 20rpx 0; }
+
+.front-text {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #4A3F32;
+  padding: 12rpx 0 24rpx;
+}
+
+.back-text {
+  font-size: 28rpx;
+  color: #2B2620;
+  white-space: pre-wrap;
+  background: #F7F2E8;
+  border-radius: 10rpx;
+  padding: 16rpx;
+  margin: 8rpx 0;
+}
+
+.tags-row { margin-top: 12rpx; }
+.source {
+  margin-top: 12rpx;
+  border-top: 1rpx dashed #E3D9C8;
+  padding-top: 10rpx;
+}
+
+/* 选择题 */
+.quiz-q { font-size: 32rpx; font-weight: 600; color: #4A3F32; margin-bottom: 16rpx; }
+.quiz-opt {
+  background: #FFFDF8;
+  border: 1rpx solid #E3D9C8;
+  border-radius: 10rpx;
+  padding: 14rpx 18rpx;
+  margin-bottom: 12rpx;
+  font-size: 27rpx;
+}
+.quiz-opt.correct {
+  background: #DFEEDF;
+  border-color: #2F6B3E;
+  color: #2F6B3E;
+}
+.quiz-res { font-size: 28rpx; font-weight: 600; margin-top: 8rpx; }
+.ok-text { color: #2F6B3E; }
+.warn-text { color: #A33B2E; }
+
+/* 评级 */
+.rate-row { display: flex; justify-content: space-between; margin: 12rpx 0; }
+.rate-btn {
+  flex: 1;
+  text-align: center;
+  border-radius: 10rpx;
+  padding: 18rpx 0;
+  margin: 0 6rpx;
+  font-size: 28rpx;
+  color: #FFF;
+}
+.r1 { background: #C0392B; }
+.r2 { background: #D68910; }
+.r3 { background: #2F6B3E; }
+.r4 { background: #1A5276; }
+.rate-label { text-align: center; }

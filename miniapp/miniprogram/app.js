@@ -1,8 +1,8 @@
 // app.js - 医学记忆卡小程序
 App({
   globalData: {
-    // 云开发环境 ID：部署时替换为你自己的环境 ID
-    cloudEnv: 'medcard-prod-xxxxx',
+    // 云开发环境 ID
+    cloudEnv: 'cloud1-d5glf5ott2a9a4b88',
     // 功能限额（每人/天），与 utils/limit.js 联动
     limits: {
       gen: 10,    // AI 抽卡
