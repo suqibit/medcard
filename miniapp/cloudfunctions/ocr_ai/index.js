@@ -1,6 +1,10 @@
-// 云函数 ocr_ai：图片文字识别（智谱免费视觉 glm-4v-flash）Node 版，零依赖
+// 云函数 ocr_ai：图片文字识别（智谱免费视觉 glm-4v-flash）
+// v2：图片走云存储中转（前端 uploadFile → 本函数 downloadFile → 智谱），绕开 callFunction 1MB 限制
 // 部署时配置环境变量 ZHIPU_API_KEY
+const cloud = require('wx-server-sdk');
 const https = require('https');
+
+cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 
 const ZHIPU_URL = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
 
@@ -13,7 +17,7 @@ function postJson(url, payload, headers, timeoutMs) {
       path: u.pathname,
       method: 'POST',
       headers: Object.assign({ 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) }, headers),
-      timeout: timeoutMs || 110000
+      timeout: timeoutMs || 100000
     }, (res) => {
       let data = '';
       res.on('data', (c) => { data += c; });
@@ -72,12 +76,14 @@ async function zhipuOcrImage(b64, mime) {
 
 exports.main = async (event) => {
   const data = (event && event.data && typeof event.data === 'object') ? event.data : (event || {});
-  const b64 = String(data.image || '');
-  const mime = String(data.mime || 'image/png');
-  if (!b64) return { error: '缺少图片数据' };
-  if (b64.length > 2 * 1024 * 1024) return { error: '图片过大（base64 限 2MB，请压缩后重试）' };
+  const fileID = data.fileID || '';
+  if (!fileID) return { error: '缺少 fileID' };
   try {
-    const text = (await zhipuOcrImage(b64, mime)).slice(0, 50000);
+    const dl = await cloud.downloadFile({ fileID });
+    const buf = dl.fileContent;
+    if (!buf || !buf.length) return { error: '图片下载失败' };
+    if (buf.length > 4 * 1024 * 1024) return { error: '图片过大（限 4MB）' };
+    const text = (await zhipuOcrImage(buf.toString('base64'), 'image/jpeg')).slice(0, 50000);
     return { text };
   } catch (e) {
     return { error: '图片识别失败：' + (e && e.message ? e.message : e) };

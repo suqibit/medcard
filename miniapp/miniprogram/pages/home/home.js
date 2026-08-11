@@ -88,46 +88,30 @@ Page({
       sourceType: ['camera', 'album'],
       success: (res) => {
         const filePath = res.tempFiles[0].tempFilePath;
-        // 压缩一轮：尺寸缩到 1280 宽（尺寸压缩对 jpg/png 都生效）+ quality 60
+        // 压缩后走云存储中转（绕开 callFunction 1MB 入参限制）
         wx.compressImage({
           src: filePath,
           quality: 60,
           compressedWidth: 1280,
-          success: (cres) => app2.uploadOcr(cres.tempFilePath, 0),
-          fail: () => app2.uploadOcr(filePath, 0)
+          success: (cres) => app2.uploadOcr(cres.tempFilePath),
+          fail: () => app2.uploadOcr(filePath)
         });
       }
     });
   },
 
-  // callFunction 入参上限 1MB（base64 需 < 900KB 留余量）：
-  // 第一次超限 → 二次压缩（缩到 800 宽 + quality 30）；仍超 → 提示换图
-  uploadOcr(filePath, retryCount) {
+  // 图片 → 云存储 → 云函数按 fileID 下载识别（与 extract 同模式）
+  uploadOcr(filePath) {
     const app2 = this;
     app2.setData({ ocrLoading: true, errMsg: '', okMsg: '' });
-    const fs = wx.getFileSystemManager();
-    fs.readFile({
+    const cloudPath = 'ocr/' + Date.now() + '.jpg';
+    wx.cloud.uploadFile({
+      cloudPath,
       filePath,
-      encoding: 'base64',
-      success: (r) => {
-        const b64 = r.data;
-        if (b64.length > 900 * 1024) {
-          if (retryCount < 1) {
-            wx.compressImage({
-              src: filePath,
-              quality: 30,
-              compressedWidth: 800,
-              success: (c2) => app2.uploadOcr(c2.tempFilePath, 1),
-              fail: () => app2.setData({ ocrLoading: false, errMsg: '图片太大，请换一张或截图后重试' })
-            });
-          } else {
-            app2.setData({ ocrLoading: false, errMsg: '图片太大，请换一张或截图后重试' });
-          }
-          return;
-        }
+      success: (u) => {
         wx.cloud.callFunction({
           name: 'ocr_ai',
-          data: { image: b64, mime: 'image/jpeg' },
+          data: { fileID: u.fileID },
           success: (res) => {
             limit.addDone('ocr');
             const r2 = res.result || {};
@@ -145,7 +129,7 @@ Page({
           fail: (e) => app2.setData({ ocrLoading: false, errMsg: '识别失败：' + (e.errMsg || e) })
         });
       },
-      fail: () => app2.setData({ ocrLoading: false, errMsg: '读取图片失败' })
+      fail: (e) => app2.setData({ ocrLoading: false, errMsg: '图片上传失败：' + (e.errMsg || e) })
     });
   },
 
