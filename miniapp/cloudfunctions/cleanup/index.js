@@ -1,11 +1,11 @@
 // 云函数 cleanup：云存储临时文件定期清理
-// 删除 ocr/ 与 uploads/ 目录下超过 30 天的文件（隐私承诺"最短时间保存"落地）
+// 删除 ocr/ 与 uploads/ 目录下超过 7 天的文件（隐私承诺"最短时间保存"落地）
 // 定时触发：每天凌晨 4 点（config.json 已配置触发器）
 const cloud = require('wx-server-sdk');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 
-const MAX_AGE_MS = 30 * 24 * 3600 * 1000; // 30 天
+const MAX_AGE_MS = 7 * 24 * 3600 * 1000; // 7 天
 const PREFIXES = ['ocr/', 'uploads/'];
 const BATCH = 100;
 
