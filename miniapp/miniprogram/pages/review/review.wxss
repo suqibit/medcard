@@ -3,6 +3,25 @@
 .center-text { text-align: center; margin: 8rpx 0; }
 .progress { text-align: center; margin-top: 20rpx; }
 
+/* 问答/选择题模式切换 */
+.mode-line {
+  display: flex;
+  justify-content: center;
+  margin: 16rpx 24rpx 4rpx;
+}
+.mode-pill {
+  background: #EDE4D4;
+  color: #6B5B45;
+  border-radius: 24rpx;
+  padding: 8rpx 30rpx;
+  font-size: 24rpx;
+  margin: 0 8rpx;
+}
+.mode-pill.active {
+  background: #6B5B45;
+  color: #F5EFE6;
+}
+
 .done-title { font-size: 34rpx; font-weight: 600; color: #2F6B3E; padding: 20rpx 0; }
 
 .front-text {

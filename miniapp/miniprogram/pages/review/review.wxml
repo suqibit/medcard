@@ -24,6 +24,12 @@
   <block wx:if="{{!loading && !empty && !done}}">
     <view class="progress muted">第 {{idx + 1}} / {{queueTotal}} 张</view>
 
+    <!-- 模式切换：问答 / 选择题 -->
+    <view class="mode-line">
+      <view class="mode-pill {{!quizModePref ? 'active' : ''}}" data-m="qa" bindtap="toggleQuizMode">问答模式</view>
+      <view class="mode-pill {{quizModePref ? 'active' : ''}}" data-m="quiz" bindtap="toggleQuizMode">选择题模式</view>
+    </view>
+
     <view class="card">
       <!-- 选择题模式 -->
       <block wx:if="{{quiz}}">
@@ -31,12 +37,12 @@
         <view
           wx:for="{{quiz.options}}"
           wx:key="index"
-          class="quiz-opt {{quizPicked && index === quiz.answer ? 'correct' : ''}} {{quizPicked && index !== quiz.answer && quizPicked === false ? '' : ''}}"
-          data-i="{{index}}"
+          class="quiz-opt {{quizPicked && index === quiz.answer ? 'correct' : ''}}"
+          data-i="{{item.index}}"
           bindtap="pickQuiz"
-        >{{'ABCDE'[index]}}. {{item}}</view>
+        >{{item.letter}}. {{item.text}}</view>
         <view class="quiz-res {{quizCorrect ? 'ok-text' : 'warn-text'}}" wx:if="{{quizPicked}}">
-          {{quizCorrect ? '✓ 答对了' : '✗ 答错了，正确答案 ' + 'ABCDE'[quiz.answer]}}
+          {{quizCorrect ? '✓ 答对了' : '✗ 答错了，正确答案 ' + quiz.answerLetter}}
         </view>
       </block>
 

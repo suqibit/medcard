@@ -18,6 +18,7 @@ Page({
     source: '',
     quiz: null,          // 选择题数据
     quizMode: false,
+    quizModePref: false, // 用户选择的复习模式（问答/选择题）
     quizPicked: false,
     quizCorrect: null,
     showBack: false,
@@ -28,7 +29,17 @@ Page({
   },
 
   onLoad() {
+    this.setData({ quizModePref: wx.getStorageSync('mc_quiz_mode') === 'quiz' });
     this.buildQueue();
+  },
+
+  // 切换 问答/选择题 模式
+  toggleQuizMode(e) {
+    const m = e.currentTarget.dataset.m; // 'qa' | 'quiz'
+    wx.setStorageSync('mc_quiz_mode', m);
+    this.setData({ quizModePref: m === 'quiz', quizPicked: false, quizCorrect: null });
+    // 用新模式重新渲染当前卡
+    this.showCard(this.data.idx);
   },
 
   buildQueue() {
@@ -62,6 +73,12 @@ Page({
     const card = this._queue[i];
     const quizMode = wx.getStorageSync('mc_quiz_mode') !== 'quiz' ? false : true;
     const hasQuiz = !!(card.quiz && Array.isArray(card.quiz.options) && card.quiz.options.length >= 4 && card.quiz.options.length <= 5 && Number.isInteger(card.quiz.answer) && card.quiz.answer >= 0 && card.quiz.answer < card.quiz.options.length);
+    // 选择题视图：字母映射在 JS 里算好（WXML 不支持 'ABCDE'[i] 表达式）
+    const quiz = (quizMode && hasQuiz) ? {
+      question: card.quiz.question,
+      answerLetter: 'ABCDE'[card.quiz.answer],
+      options: card.quiz.options.map((t, idx) => ({ letter: 'ABCDE'[idx], text: t, index: idx }))
+    } : null;
     this.setData({
       idx: i,
       card,
@@ -69,8 +86,8 @@ Page({
       back: card.back || '',
       tags: card.tags || [],
       source: card.source || '',
-      quiz: (quizMode && hasQuiz) ? card.quiz : null,
-      quizMode: quizMode && hasQuiz,
+      quiz,
+      quizMode: !!quiz,
       quizPicked: false,
       quizCorrect: null,
       showBack: false,
