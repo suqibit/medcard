@@ -88,18 +88,20 @@ Page({
       sourceType: ['camera', 'album'],
       success: (res) => {
         const filePath = res.tempFiles[0].tempFilePath;
-        // 压缩到 1280 宽内，控制 base64 体积
+        // 先压缩一轮（quality 60）
         wx.compressImage({
           src: filePath,
           quality: 60,
-          success: (cres) => app2.uploadOcr(cres.tempFilePath),
-          fail: () => app2.uploadOcr(filePath)
+          success: (cres) => app2.uploadOcr(cres.tempFilePath, 0),
+          fail: () => app2.uploadOcr(filePath, 0)
         });
       }
     });
   },
 
-  uploadOcr(filePath) {
+  // callFunction 入参上限 1MB（base64 需 < 900KB 留余量）：
+  // 第一次超限 → 二次压缩（quality 30）；仍超 → 提示换图
+  uploadOcr(filePath, retryCount) {
     const app2 = this;
     app2.setData({ ocrLoading: true, errMsg: '', okMsg: '' });
     const fs = wx.getFileSystemManager();
@@ -108,8 +110,17 @@ Page({
       encoding: 'base64',
       success: (r) => {
         const b64 = r.data;
-        if (b64.length > 1.8 * 1024 * 1024) {
-          app2.setData({ ocrLoading: false, errMsg: '图片过大，请换一张或截图后重试' });
+        if (b64.length > 900 * 1024) {
+          if (retryCount < 1) {
+            wx.compressImage({
+              src: filePath,
+              quality: 30,
+              success: (c2) => app2.uploadOcr(c2.tempFilePath, 1),
+              fail: () => app2.setData({ ocrLoading: false, errMsg: '图片太大，请换一张或截图后重试' })
+            });
+          } else {
+            app2.setData({ ocrLoading: false, errMsg: '图片太大，请换一张或截图后重试' });
+          }
           return;
         }
         wx.cloud.callFunction({
