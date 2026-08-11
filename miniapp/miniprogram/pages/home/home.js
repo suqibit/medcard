@@ -100,7 +100,7 @@ Page({
           return;
         }
         wx.cloud.callFunction({
-          name: 'ocr',
+          name: 'ocr_ai',
           data: { image: b64, mime: 'image/jpeg' },
           success: (res) => {
             limit.addDone('ocr');
@@ -198,7 +198,7 @@ Page({
     const tags = app2.data.customTags.split(/[,，]/).map(s => s.trim()).filter(Boolean).slice(0, 30);
     app2.setData({ loading: true, errMsg: '', okMsg: '', cardsPreview: [] });
     wx.cloud.callFunction({
-      name: 'generate',
+      name: 'gen_ai',
       data: {
         text,
         max_cards: app2.data.maxCards,

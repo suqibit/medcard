@@ -1,24 +1,12 @@
 # -*- coding: utf-8 -*-
 # 云函数 ocr：图片文字识别（智谱免费视觉模型 glm-4v-flash）
-# 零第三方依赖（urllib 标准库），避免云端安装依赖失败
 # 部署时在云开发控制台配置环境变量 ZHIPU_API_KEY
 import os
 import json
-import urllib.request
+import base64
+import requests
 
 ZHIPU_URL = "https://open.bigmodel.cn/api/paas/v4/chat/completions"
-
-
-def post_json(url, payload, headers, timeout=110):
-    """标准库 HTTP POST，返回解析后的 JSON；非 2xx 抛异常。"""
-    req = urllib.request.Request(
-        url,
-        data=json.dumps(payload).encode("utf-8"),
-        headers=headers,
-        method="POST",
-    )
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        return json.loads(resp.read().decode("utf-8"))
 
 
 def clean_ocr_text(text):
@@ -58,12 +46,18 @@ def zhipu_ocr_image(b64, mime):
     resp = None
     for attempt in range(2):
         try:
-            resp = post_json(ZHIPU_URL, payload, {"Authorization": f"Bearer {key}"})
+            resp = requests.post(
+                ZHIPU_URL,
+                headers={"Authorization": f"Bearer {key}"},
+                json=payload,
+                timeout=110,
+            )
+            resp.raise_for_status()
             break
         except Exception:
             if attempt == 1:
                 raise
-    content = resp["choices"][0]["message"]["content"].strip()
+    content = resp.json()["choices"][0]["message"]["content"].strip()
     return clean_ocr_text(content)
 
 
