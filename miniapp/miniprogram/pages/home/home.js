@@ -88,10 +88,11 @@ Page({
       sourceType: ['camera', 'album'],
       success: (res) => {
         const filePath = res.tempFiles[0].tempFilePath;
-        // 先压缩一轮（quality 60）
+        // 压缩一轮：尺寸缩到 1280 宽（尺寸压缩对 jpg/png 都生效）+ quality 60
         wx.compressImage({
           src: filePath,
           quality: 60,
+          compressedWidth: 1280,
           success: (cres) => app2.uploadOcr(cres.tempFilePath, 0),
           fail: () => app2.uploadOcr(filePath, 0)
         });
@@ -100,7 +101,7 @@ Page({
   },
 
   // callFunction 入参上限 1MB（base64 需 < 900KB 留余量）：
-  // 第一次超限 → 二次压缩（quality 30）；仍超 → 提示换图
+  // 第一次超限 → 二次压缩（缩到 800 宽 + quality 30）；仍超 → 提示换图
   uploadOcr(filePath, retryCount) {
     const app2 = this;
     app2.setData({ ocrLoading: true, errMsg: '', okMsg: '' });
@@ -115,6 +116,7 @@ Page({
             wx.compressImage({
               src: filePath,
               quality: 30,
+              compressedWidth: 800,
               success: (c2) => app2.uploadOcr(c2.tempFilePath, 1),
               fail: () => app2.setData({ ocrLoading: false, errMsg: '图片太大，请换一张或截图后重试' })
             });
