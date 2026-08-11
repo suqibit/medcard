@@ -1,6 +1,7 @@
 // pages/records/records.js - 复习记录页
 const db = require('../../utils/db.js');
 const fmt = require('../../utils/format.js');
+const limit = require('../../utils/limit.js');
 
 const PAGE_SIZE = 10;
 
@@ -14,11 +15,34 @@ Page({
     totalPages: 1,
     total: 0,
     weakList: [],     // 薄弱点分析
-    expanded: {}      // id -> true（展开答案）
+    expanded: {},     // id -> true（展开答案）
+    helpShow: false   // 复习时间说明弹窗
   },
 
   onShow() {
     this.loadData();
+    this.showHelpIfNeeded();
+  },
+
+  // 复习时间说明（对齐 web 版：一月内不显示 / 永远不显示 / 叉号=本次关闭）
+  showHelpIfNeeded() {
+    if (wx.getStorageSync('mc_help_off') === '1') return;
+    const until = wx.getStorageSync('mc_help_until') || '';
+    if (until && until >= limit.todayStr()) return;
+    this.setData({ helpShow: true });
+  },
+  helpClose() {
+    this.setData({ helpShow: false });
+  },
+  helpMonth() {
+    const d = new Date(Date.now() + 30 * 86400000);
+    wx.setStorageSync('mc_help_until',
+      d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'));
+    this.setData({ helpShow: false });
+  },
+  helpOff() {
+    wx.setStorageSync('mc_help_off', '1');
+    this.setData({ helpShow: false });
   },
 
   loadData() {

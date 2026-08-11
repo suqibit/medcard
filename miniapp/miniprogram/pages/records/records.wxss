@@ -51,3 +51,14 @@
   margin: 0 30rpx;
 }
 .page-btn.disabled { opacity: 0.4; }
+
+/* 弹窗关闭叉号 */
+.modal-x {
+  position: absolute;
+  top: 16rpx;
+  right: 24rpx;
+  font-size: 32rpx;
+  color: #8B7D6B;
+  padding: 8rpx;
+}
+.modal-x:active { opacity: 0.6; }

@@ -122,19 +122,15 @@
     </view>
   </view>
 
-  <!-- 新手引导：复习时间怎么算 -->
+  <!-- 新手引导：三步上手 -->
   <view class="modal-mask" wx:if="{{helpShow}}">
     <view class="modal-box">
-      <view class="modal-title">复习时间是怎么算的？</view>
-      <view class="modal-item">你每次复习后选的「忘记 / 困难 / 记得 / 简单」，系统会据此安排这张卡下次出现的时间：</view>
-      <view class="modal-item">
-        <text class="privacy-strong">首次学习后</text>：忘记→明天 · 困难→2 天后 · 记得→3 天后 · 简单→8 天后
-      </view>
-      <view class="modal-item"><text class="privacy-strong">越熟练间隔越长</text>——熟的知识不浪费你时间；<text class="privacy-strong">越生疏出现越频繁</text>——趁热打铁巩固</view>
-      <view class="modal-item">只有<text class="privacy-strong">到期</text>的卡才会出现在复习页；每天有复习上限，不会堆积</view>
-      <view class="modal-item">断了好几天回来也不怕：系统会提示你攒了多少，慢慢跟上，<text class="privacy-strong">不会越堆越多</text></view>
-      <view class="modal-note">这一切由算法自动调度（Anki 同款），你只管如实自评。</view>
-      <view class="btn-primary" bindtap="ackHelp">知道了</view>
+      <view class="modal-title">欢迎使用医学记忆卡 🎓</view>
+      <view class="modal-item"><text class="privacy-strong">第 1 步 · 生成</text>：粘贴教材文字、拍错题照片或上传 PDF/Word，AI 自动生成记忆卡（答案+解析+关联考点）</view>
+      <view class="modal-item"><text class="privacy-strong">第 2 步 · 复习</text>：每天 10 分钟，到期的卡会自动出现；如实选择「忘记/困难/记得/简单」，系统安排下次复习</view>
+      <view class="modal-item"><text class="privacy-strong">第 3 步 · 记录</text>：在底部「记录」页查看复习情况与薄弱点，越练越稳</view>
+      <view class="modal-note">不堆积、断了能捡回——开始吧！</view>
+      <view class="btn-primary" bindtap="ackHelp">知道了，开始使用</view>
     </view>
   </view>
 

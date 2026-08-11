@@ -55,4 +55,22 @@
     <view class="page-btn {{page >= totalPages ? 'disabled' : ''}}" bindtap="onNext">下一页</view>
   </view>
 
+  <!-- 复习时间说明弹窗（进入记录页时按需出现） -->
+  <view class="modal-mask" wx:if="{{helpShow}}">
+    <view class="modal-box">
+      <view class="modal-x" bindtap="helpClose">✕</view>
+      <view class="modal-title">复习时间是怎么算的？</view>
+      <view class="modal-item">你每次复习后选的「忘记 / 困难 / 记得 / 简单」，系统会据此安排这张卡下次出现的时间：</view>
+      <view class="modal-item">
+        <text class="privacy-strong">首次学习后</text>：忘记→明天 · 困难→2 天后 · 记得→3 天后 · 简单→8 天后
+      </view>
+      <view class="modal-item"><text class="privacy-strong">越熟练间隔越长</text>——熟的知识不浪费你时间；<text class="privacy-strong">越生疏出现越频繁</text>——趁热打铁巩固</view>
+      <view class="modal-item">只有<text class="privacy-strong">到期</text>的卡才会出现在复习页；每天有复习上限，不会堆积</view>
+      <view class="modal-item">断了好几天回来也不怕：系统会提示你攒了多少，慢慢跟上，<text class="privacy-strong">不会越堆越多</text></view>
+      <view class="modal-note">这一切由算法自动调度（Anki 同款），你只管如实自评。</view>
+      <view class="btn-primary" bindtap="helpMonth">一月内不提醒</view>
+      <view class="btn-secondary" bindtap="helpOff">永远关闭提醒</view>
+    </view>
+  </view>
+
 </view>
