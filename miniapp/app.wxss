@@ -1,0 +1,114 @@
+/* app.wxss - 深卡其学术风全局样式（对齐 web 版品牌） */
+page {
+  background: #F5EFE6;
+  color: #2B2620;
+  font-size: 28rpx;
+  line-height: 1.6;
+}
+
+/* 通用卡片容器 */
+.card {
+  background: #FFFDF8;
+  border: 1rpx solid #E3D9C8;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin: 16rpx 24rpx;
+  box-shadow: 0 4rpx 12rpx rgba(74, 63, 50, 0.06);
+}
+
+/* 主按钮 */
+.btn-primary {
+  background: #6B5B45;
+  color: #F5EFE6;
+  border-radius: 12rpx;
+  font-size: 30rpx;
+  padding: 20rpx 0;
+  text-align: center;
+  margin: 16rpx 24rpx;
+}
+.btn-primary:active { opacity: 0.85; }
+.btn-primary.disabled { background: #B5A894; }
+
+/* 次按钮 */
+.btn-secondary {
+  background: #EDE4D4;
+  color: #4A3F32;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  padding: 16rpx 0;
+  text-align: center;
+  margin: 12rpx 24rpx;
+}
+.btn-secondary:active { opacity: 0.85; }
+
+/* 危险按钮 */
+.btn-danger {
+  background: #C0392B;
+  color: #FFF;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  padding: 16rpx 0;
+  text-align: center;
+  margin: 12rpx 24rpx;
+}
+
+/* 标签 */
+.tag {
+  display: inline-block;
+  background: #E8DFCF;
+  color: #6B5B45;
+  font-size: 22rpx;
+  border-radius: 8rpx;
+  padding: 4rpx 14rpx;
+  margin: 4rpx 8rpx 4rpx 0;
+}
+
+/* 提示条 */
+.note {
+  background: #F0E7D6;
+  color: #6B5B45;
+  font-size: 24rpx;
+  border-radius: 10rpx;
+  padding: 14rpx 20rpx;
+  margin: 12rpx 24rpx;
+}
+
+/* 红色警告条（调试/异常） */
+.warn {
+  background: #FBE3E0;
+  color: #A33B2E;
+  font-size: 24rpx;
+  border-radius: 10rpx;
+  padding: 14rpx 20rpx;
+  margin: 12rpx 24rpx;
+}
+
+/* 成功提示条 */
+.ok {
+  background: #DFEEDF;
+  color: #2F6B3E;
+  font-size: 24rpx;
+  border-radius: 10rpx;
+  padding: 14rpx 20rpx;
+  margin: 12rpx 24rpx;
+}
+
+/* 区块标题 */
+.section-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #4A3F32;
+  margin: 32rpx 24rpx 8rpx;
+}
+
+/* 灰色辅助文字 */
+.muted {
+  color: #8B7D6B;
+  font-size: 24rpx;
+}
+
+/* 到期红色 */
+.due { color: #C0392B; }
+
+/* 隐藏（兜底，防 display 覆盖） */
+[hidden] { display: none !important; }

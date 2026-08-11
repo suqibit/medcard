@@ -1,0 +1,32 @@
+{
+  "pages": [
+    "pages/home/home",
+    "pages/review/review",
+    "pages/records/records"
+  ],
+  "window": {
+    "backgroundColor": "#F5EFE6",
+    "backgroundTextStyle": "dark",
+    "navigationBarBackgroundColor": "#4A3F32",
+    "navigationBarTitleText": "医学记忆卡",
+    "navigationBarTextStyle": "white"
+  },
+  "tabBar": {
+    "color": "#8B7D6B",
+    "selectedColor": "#4A3F32",
+    "backgroundColor": "#F5EFE6",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/home/home",
+        "text": "学习"
+      },
+      {
+        "pagePath": "pages/records/records",
+        "text": "记录"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}
