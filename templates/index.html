@@ -382,7 +382,9 @@
   /* AI 生成内容显式标识（标识办法§4：交互场景界面显著提示） */
   .ai-note{background:rgba(160,90,44,.08);border:1px solid rgba(160,90,44,.35);color:var(--warn);padding:8px 14px;font-size:12.5px;line-height:1.7;border-radius:var(--r-sm);margin-bottom:12px}
   .ai-note a{color:var(--warn);font-weight:600}
-  /* 首次进入协议弹窗（AIGC 合规：暂行办法§9 服务协议） */
+  /* 首次进入协议弹窗（AIGC 合规：暂行办法§9 服务协议）
+     ⚠ z-index 必须高于新手引导(#tourMask 1000/.tour-card 1002)，否则被遮住 */
+  #termsMask{z-index:1200}
   .termsbox{position:relative;background:var(--card);border:1px solid rgba(14,90,74,.25);border-radius:var(--r-lg);max-width:480px;width:100%;padding:30px 28px 26px;box-shadow:var(--shadow-float);animation:mc-fadeUp .3s var(--ease-out)}
   .termsbox h3{font-family:"Noto Serif SC",serif;font-size:19px;letter-spacing:1px;margin-bottom:14px;color:var(--accent)}
   .termsbox p{font-size:13px;line-height:1.8;color:var(--ink);margin-bottom:8px}
