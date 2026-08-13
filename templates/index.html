@@ -382,6 +382,15 @@
   /* AI 生成内容显式标识（标识办法§4：交互场景界面显著提示） */
   .ai-note{background:rgba(160,90,44,.08);border:1px solid rgba(160,90,44,.35);color:var(--warn);padding:8px 14px;font-size:12.5px;line-height:1.7;border-radius:var(--r-sm);margin-bottom:12px}
   .ai-note a{color:var(--warn);font-weight:600}
+  /* 首次进入协议弹窗（AIGC 合规：暂行办法§9 服务协议） */
+  .termsbox{position:relative;background:var(--card);border:1px solid rgba(14,90,74,.25);border-radius:var(--r-lg);max-width:480px;width:100%;padding:30px 28px 26px;box-shadow:var(--shadow-float);animation:mc-fadeUp .3s var(--ease-out)}
+  .termsbox h3{font-family:"Noto Serif SC",serif;font-size:19px;letter-spacing:1px;margin-bottom:14px;color:var(--accent)}
+  .termsbox p{font-size:13px;line-height:1.8;color:var(--ink);margin-bottom:8px}
+  .termsbox ul{margin:4px 0 12px;padding-left:20px}
+  .termsbox li{font-size:12.5px;line-height:1.9;color:var(--ink-2);margin-bottom:4px}
+  .termsbox .full{margin-top:10px;font-size:12px;color:var(--sub)}
+  .termsbox .full a{color:var(--accent);font-weight:600}
+  .terms-btns{display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap}
 </style>
 <!-- deploy-test-20260809 -->
 </head>
@@ -1716,10 +1725,47 @@ importFile.onchange=async e=>{
   window.addEventListener('resize',placeCard);
   showStep(0);
 })();
+
+/* 首次进入：服务协议确认（AIGC 合规）——同意后 localStorage 记录，不再打扰 */
+(function(){
+  if(localStorage.getItem('mc_terms_agree'))return;
+  const mask=$('termsMask');
+  if(!mask)return;
+  mask.hidden=false;
+  $('termsYes').onclick=()=>{
+    localStorage.setItem('mc_terms_agree','1');
+    mask.hidden=true;
+  };
+  $('termsNo').onclick=()=>{
+    try{window.close();}catch(e){}
+    if(!window.closed){
+      document.body.innerHTML='<div style="text-align:center;padding:90px 20px;color:var(--sub);font-size:14px;line-height:2">您已选择不同意协议，无法继续使用本服务。<br><a href="/" style="color:var(--accent)">重新进入</a></div>';
+    }
+  };
+})();
 </script>
 <footer class="site-footer">
   <a href="/terms">用户服务协议</a>
   <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">湘ICP备2026034721号</a>
 </footer>
+
+<!-- 首次进入：服务协议确认弹窗（AIGC 合规：暂行办法§9 服务协议） -->
+<div class="mask" id="termsMask" hidden>
+  <div class="termsbox">
+    <h3>用户服务协议 · 隐私政策</h3>
+    <p>欢迎使用「医学记忆卡」。继续使用前，请阅读并确认以下内容：</p>
+    <ul>
+      <li>本工具使用 <b>AI 生成卡片内容</b>，学习前请对照您的来源资料核实（卡片界面均带「AI 生成」标识）；</li>
+      <li>本服务是<b>备考学习工具</b>，不提供任何医疗建议、诊断或治疗方案；</li>
+      <li>卡片数据默认存储在<b>浏览器本地</b>，您的输入仅在制卡时发送至第三方模型服务商处理，<b>本服务不留存</b>；</li>
+      <li>本服务不收集非必要个人信息，您可随时通过浏览器清除站点数据删除全部卡片。</li>
+    </ul>
+    <p class="full">完整条款与隐私政策详见 <a href="/terms" target="_blank" rel="noopener">《用户服务协议》</a></p>
+    <div class="terms-btns">
+      <button class="btn-ghost" id="termsNo">不同意，退出网站</button>
+      <button class="btn" id="termsYes">同意，继续使用</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
