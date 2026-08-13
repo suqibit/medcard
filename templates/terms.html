@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>用户服务协议 · 医学记忆卡</title>
+<style>
+  :root{
+    --bg:#EDE3C8; --card:#FAF4E2; --ink:#2B2924; --ink-2:#4A453A; --sub:#6B6352;
+    --line:#D8CBAA; --line-strong:#C4B68F; --accent:#0E5A4A; --accent-2:#0A473A;
+    --accent-soft:#E3EDE4; --rule:#C4B68F;
+    --warn:#A05A2C; --danger:#8C2F1E;
+    --r:18px; --r-sm:12px; --r-lg:26px;
+    --shadow-card:0 1px 2px rgba(43,41,36,.05),0 10px 28px -14px rgba(43,41,36,.16);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  [hidden]{display:none!important}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    line-height:1.8; -webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(720px 340px at 82% -8%,rgba(255,248,224,.9),transparent 60%),
+      radial-gradient(520px 300px at -6% 18%,rgba(14,90,74,.055),transparent 62%);
+    background-attachment:fixed;
+    min-height:100dvh;
+  }
+  .page{max-width:720px;margin:0 auto;padding:48px 28px 40px}
+  .masthead{border-bottom:1.5px solid var(--line-strong);padding-bottom:20px;margin-bottom:26px;position:relative}
+  .masthead::after{content:"";position:absolute;left:0;bottom:-1.5px;width:56px;height:1.5px;background:var(--accent)}
+  .masthead .kicker{font-family:"Noto Serif SC","Songti SC",serif;font-size:13px;letter-spacing:.35em;color:var(--accent);margin-bottom:10px}
+  .masthead h1{font-family:"Noto Serif SC","Songti SC","SimSun",serif;font-size:28px;font-weight:700;letter-spacing:.06em}
+  .masthead .sub{margin-top:6px;color:var(--sub);font-size:13.5px}
+  .sec{background:var(--card);border:1px solid rgba(43,41,36,.1);border-radius:var(--r);padding:26px 28px;margin-bottom:18px;box-shadow:var(--shadow-card)}
+  .sec h2{font-size:15.5px;font-weight:700;color:var(--accent);margin-bottom:14px;letter-spacing:.05em}
+  .sec h3{font-size:13.5px;font-weight:600;margin:14px 0 6px}
+  .sec p,.sec li{font-size:13.5px;color:var(--ink);margin-bottom:8px}
+  .sec ul{padding-left:20px}
+  .sec .hl{background:rgba(14,90,74,.06);border-left:3px solid var(--accent);padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:13px;color:var(--ink-2)}
+  .sec .hl b{color:var(--accent)}
+  .sec .warn{background:rgba(160,90,44,.08);border-left:3px solid var(--warn);padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:13px;color:var(--warn)}
+  .back{margin-top:8px;display:inline-block;color:var(--accent);text-decoration:none;font-size:13.5px;border:1.5px solid var(--accent);border-radius:var(--r-sm);padding:8px 20px;transition:background .2s}
+  .back:hover{background:var(--accent-soft)}
+  .site-footer{max-width:720px;margin:0 auto;padding:6px 28px 34px;text-align:center}
+  .site-footer a{font-size:12px;color:var(--sub);text-decoration:none;letter-spacing:.06em;transition:color .15s;margin:0 10px}
+  .site-footer a:hover{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="masthead">
+    <div class="kicker">MEDCARD · 服务条款</div>
+    <h1>用户服务协议</h1>
+    <div class="sub">更新日期：2026-08-13 ｜ 生效日期：2026-08-13</div>
+  </header>
+
+  <section class="sec">
+    <h2>一、服务说明与适用人群</h2>
+    <p>「医学记忆卡」（medcard.icu，以下简称"本服务"）是一款面向<strong>医学专业学生及备考人群</strong>的<b>学习辅助工具</b>：用户自行提供学习内容，本服务使用人工智能技术协助整理为记忆卡片，供用户个人复习使用。</p>
+    <div class="warn"><b>重要：</b>本服务是备考/学习工具，不提供任何医疗建议、诊断或治疗方案。生成内容不能替代教材、指南或专业判断，涉及诊疗决策请咨询执业医师。</div>
+    <p>使用本服务即视为您已阅读并同意本协议全部条款。</p>
+  </section>
+
+  <section class="sec">
+    <h2>二、人工智能生成内容与标识</h2>
+    <p>本服务通过人工智能模型（调用第三方大模型服务商，如 DeepSeek、智谱 AI）为用户生成卡片文本、选择题等内容。根据《生成式人工智能服务管理暂行办法》及《人工智能生成合成内容标识办法》的要求：</p>
+    <div class="hl"><b>标识说明：</b>本服务生成的卡片内容均为 AI 生成合成内容，页面交互界面（生成结果、学习、复习区域）均带有显著的「AI 生成」提示标识。请您在使用时知悉内容由 AI 生成，并注意核对。</div>
+    <ul>
+      <li>AI 生成内容可能存在错误、偏差或遗漏，<strong>学习前请务必对照您提供的原始来源资料核实</strong>；</li>
+      <li>对于标记为「需核实」或带存疑标记的卡片，请优先核实后再记忆；</li>
+      <li>您可将卡片导出为 .apkg / .csv 文件，导出内容同样为 AI 生成内容，请您自行妥善使用；</li>
+      <li>请勿利用本服务生成、传播违法违规或侵权内容，不得恶意删除、篡改、伪造、隐匿 AI 生成内容标识。</li>
+    </ul>
+  </section>
+
+  <section class="sec">
+    <h2>三、内容来源与知识产权</h2>
+    <p>本服务不提供任何公共题库、教材或辅导资料内容。卡片均由<strong>用户自行上传、粘贴的学习内容</strong>为基础生成，用户应对其提供内容的合法性与知识产权负责。</p>
+    <p>您保留对自身输入内容的全部权利；生成后的卡片由您个人学习使用，请勿将本服务生成内容用于商业用途或公开传播（法律法规允许的除外）。</p>
+  </section>
+
+  <section class="sec">
+    <h2>四、个人信息与数据处理</h2>
+    <ul>
+      <li>本服务<strong>不要求注册、不收集账号信息</strong>，卡片数据默认存储在您的浏览器本地（IndexedDB），不上传服务器；</li>
+      <li>您输入的学习内容仅在生成卡片时发送至第三方大模型服务商（DeepSeek / 智谱 AI）处理，处理完毕后本服务<strong>不留存您的输入内容</strong>；</li>
+      <li>本服务不收集非必要个人信息；您可通过浏览器清除站点数据，随时删除全部本地卡片；</li>
+      <li>第三方模型服务商对输入数据的处理，适用其各自的隐私政策。</li>
+    </ul>
+  </section>
+
+  <section class="sec">
+    <h2>五、内容安全与投诉举报</h2>
+    <p>本服务坚持依法合规运营，发现违法违规内容将及时停止生成、处置并向有关主管部门报告。如您发现本服务存在违法违规内容、或认为自身权益受到侵害：</p>
+    <ul>
+      <li>可通过页面「反馈」入口（邮箱：suqiqinak@163.com）提交投诉与举报；</li>
+      <li>我们将在 <strong>48 小时内</strong>受理并反馈处理结果（法定节假日顺延）；</li>
+      <li>您亦可向属地互联网信息内容主管部门（12377 举报平台 www.12377.cn）举报。</li>
+    </ul>
+  </section>
+
+  <section class="sec">
+    <h2>六、免责声明</h2>
+    <ul>
+      <li>本服务基于"现状"提供，不保证生成内容绝对准确、完整、可靠；</li>
+      <li>因 AI 生成内容存在局限性，您因使用本服务产生的学习效果差异、考试结果等，本服务不承担相应责任；</li>
+      <li>本服务为免费学习工具，不构成任何形式的医疗建议、执业指导或商业承诺；</li>
+      <li>本协议未尽事宜，依照中华人民共和国法律法规执行。</li>
+    </ul>
+  </section>
+
+  <a class="back" href="/">← 返回首页</a>
+</div>
+<footer class="site-footer">
+  <a href="/">返回首页</a>
+  <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">湘ICP备2026034721号</a>
+</footer>
+</body>
+</html>

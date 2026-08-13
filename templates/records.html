@@ -133,7 +133,7 @@
   }
   /* 页脚备案号（管局要求，部署必带） */
   .site-footer{max-width:640px;margin:0 auto;padding:26px 28px 34px;text-align:center}
-  .site-footer a{font-size:12px;color:var(--sub);text-decoration:none;letter-spacing:.06em;transition:color .15s}
+  .site-footer a{font-size:12px;color:var(--sub);text-decoration:none;letter-spacing:.06em;transition:color .15s;margin:0 10px}
   .site-footer a:hover{color:var(--accent)}
 </style>
 </head>
@@ -401,6 +401,7 @@ $('prevBtn').onclick=()=>{page--;render();};
 $('nextBtn').onclick=()=>{page++;render();};
 </script>
 <footer class="site-footer">
+  <a href="/terms">用户服务协议</a>
   <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">湘ICP备2026034721号</a>
 </footer>
 </body>

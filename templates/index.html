@@ -377,8 +377,11 @@
   }
   /* 页脚备案号（管局要求，部署必带） */
   .site-footer{max-width:640px;margin:0 auto;padding:26px 28px 34px;text-align:center}
-  .site-footer a{font-size:12px;color:var(--sub);text-decoration:none;letter-spacing:.06em;transition:color .15s}
+  .site-footer a{font-size:12px;color:var(--sub);text-decoration:none;letter-spacing:.06em;transition:color .15s;margin:0 10px}
   .site-footer a:hover{color:var(--accent)}
+  /* AI 生成内容显式标识（标识办法§4：交互场景界面显著提示） */
+  .ai-note{background:rgba(160,90,44,.08);border:1px solid rgba(160,90,44,.35);color:var(--warn);padding:8px 14px;font-size:12.5px;line-height:1.7;border-radius:var(--r-sm);margin-bottom:12px}
+  .ai-note a{color:var(--warn);font-weight:600}
 </style>
 <!-- deploy-test-20260809 -->
 </head>
@@ -438,6 +441,7 @@
         ⚠ 当前为演示模式：未检测到 API Key，卡片由规则切分生成（质量有限）。配置 key 后即为 AI 抽卡。
       </div>
       <div id="learnBox" hidden>
+        <div class="ai-note">🤖 卡片由 AI 生成，学习前请对照来源核实（<a href="/terms">标识说明</a>）</div>
         <div class="status" id="learnStat"></div>
           <div class="rev-card" id="learnCard" style="margin-top:8px">
             <div class="quiz-toggle" id="learnQuizToggle" hidden>
@@ -483,6 +487,7 @@
     <div class="gap-note" id="gapNote" style="display:none"></div>
 
     <div class="review-stage">
+      <div class="ai-note">🤖 卡片由 AI 生成，学习前请对照来源核实（<a href="/terms">标识说明</a>）</div>
       <div class="rev-card" id="revCard" hidden>
         <div class="quiz-toggle" id="revQuizToggle" hidden>
           <button class="qt on" data-q="qa">问答</button>
@@ -1713,6 +1718,7 @@ importFile.onchange=async e=>{
 })();
 </script>
 <footer class="site-footer">
+  <a href="/terms">用户服务协议</a>
   <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">湘ICP备2026034721号</a>
 </footer>
 </body>

@@ -299,6 +299,12 @@ def records():
     return render_template("records.html")
 
 
+@app.route("/terms")
+def terms():
+    # 用户服务协议：生成式 AI 合规（标识办法§8/暂行办法§9-11,15）
+    return render_template("terms.html")
+
+
 @app.route("/generate", methods=["POST"])
 @api_guard
 def generate():
