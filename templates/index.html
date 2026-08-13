@@ -1693,24 +1693,6 @@ importFile.onchange=async e=>{
   window.addEventListener('resize',placeCard);
   showStep(0);
 })();
-
-/* 首次进入：服务协议确认（AIGC 合规）——同意后 localStorage 记录，不再打扰 */
-(function(){
-  if(localStorage.getItem('mc_terms_agree'))return;
-  const mask=$('termsMask');
-  if(!mask)return;
-  mask.hidden=false;
-  $('termsYes').onclick=()=>{
-    localStorage.setItem('mc_terms_agree','1');
-    mask.hidden=true;
-  };
-  $('termsNo').onclick=()=>{
-    try{window.close();}catch(e){}
-    if(!window.closed){
-      document.body.innerHTML='<div style="text-align:center;padding:90px 20px;color:var(--sub);font-size:14px;line-height:2">您已选择不同意协议，无法继续使用本服务。<br><a href="/" style="color:var(--accent)">重新进入</a></div>';
-    }
-  };
-})();
 </script>
 <footer class="site-footer">
   <a href="/terms">用户服务协议</a>
@@ -1735,5 +1717,25 @@ importFile.onchange=async e=>{
     </div>
   </div>
 </div>
+<script>
+/* 首次进入：服务协议确认（AIGC 合规）——同意后 localStorage 记录，不再打扰
+   ⚠ 必须放在 termsMask HTML 之后执行（前面主脚本里会因元素未解析返回 null 而静默失效） */
+(function(){
+  if(localStorage.getItem('mc_terms_agree'))return;
+  const mask=document.getElementById('termsMask');
+  if(!mask)return;
+  mask.hidden=false;
+  document.getElementById('termsYes').onclick=()=>{
+    localStorage.setItem('mc_terms_agree','1');
+    mask.hidden=true;
+  };
+  document.getElementById('termsNo').onclick=()=>{
+    try{window.close();}catch(e){}
+    if(!window.closed){
+      document.body.innerHTML='<div style="text-align:center;padding:90px 20px;color:var(--sub);font-size:14px;line-height:2">您已选择不同意协议，无法继续使用本服务。<br><a href="/" style="color:var(--accent)">重新进入</a></div>';
+    }
+  };
+})();
+</script>
 </body>
 </html>
