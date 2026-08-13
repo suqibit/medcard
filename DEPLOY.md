@@ -24,6 +24,7 @@ git push -u origin main
 3. 添加环境变量（Settings → Environment Variables，Production）：
    - `DEEPSEEK_API_KEY` = 你的 DeepSeek key
    - `ZHIPU_API_KEY` = 你的智谱 key
+   - `API_SECRET` = 随机 32 字符（接口鉴权密钥，`.env` 里有现成的，抄过去即可；漏配=鉴权关闭）
 4. Deploy
 
 ### 3. 绑定域名（medcard.icu）

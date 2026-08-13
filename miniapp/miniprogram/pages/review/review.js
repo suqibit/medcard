@@ -26,7 +26,9 @@ Page({
     doneMsg: '',
     streak: 0,
     errMsg: '',
-    privacyShow: false
+    privacyShow: false,
+    cardShown: true,   // 纯视觉：换卡时 false→true 重建节点，驱动卡片入场动画
+    cardH: ''          // 纯视觉：模式切换时的高度过渡（'' = auto）
   },
 
   onLoad() {
@@ -42,13 +44,38 @@ Page({
     this.setData({ privacyShow: false });
   },
 
-  // 切换 问答/选择题 模式
+  // 切换 问答/选择题 模式（web 版同款：高度平滑过渡 + 新内容淡入）
   toggleQuizMode(e) {
     const m = e.currentTarget.dataset.m; // 'qa' | 'quiz'
+    if ((m === 'quiz') === this.data.quizModePref) return; // 同模式不重做
     wx.setStorageSync('mc_quiz_mode', m);
-    this.setData({ quizModePref: m === 'quiz', quizPicked: false, quizCorrect: null });
-    // 用新模式重新渲染当前卡
-    this.showCard(this.data.idx);
+    // 1. 量当前卡片高度
+    this._measureCard((oldH) => {
+      // 2. 切换内容（不重建整卡，避免 fadeUp 重放干扰高度过渡）
+      this.setData({ quizModePref: m === 'quiz', quizPicked: false, quizCorrect: null });
+      this.showCard(this.data.idx, true);
+      // 3. 渲染后量新高度 → 高度过渡
+      wx.nextTick(() => {
+        this._measureCard((newH) => {
+          if (oldH > 0 && newH > 0 && Math.abs(newH - oldH) > 2) {
+            this.setData({ cardH: oldH });
+            wx.nextTick(() => {
+              this.setData({ cardH: newH });
+              setTimeout(() => this.setData({ cardH: '' }), 380); // 过渡完恢复 auto
+            });
+          }
+        });
+      });
+    });
+  },
+
+  // 量卡片容器高度（小程序版 offsetHeight；boundingClientRect 返回 px，换算成 rpx 供 wxml 使用）
+  _measureCard(cb) {
+    let winW = 375;
+    try { winW = (wx.getWindowInfo && wx.getWindowInfo().windowWidth) || 375; } catch (e) {}
+    wx.createSelectorQuery().in(this).select('.card-anim').boundingClientRect((rect) => {
+      cb(rect ? Math.round(rect.height * 750 / winW) : 0);
+    }).exec();
   },
 
   buildQueue() {
@@ -78,7 +105,8 @@ Page({
     this.showCard(0);
   },
 
-  showCard(i) {
+  // i: 索引；noRebuild: true = 仅换内容（模式切换用，不重建整卡）
+  showCard(i, noRebuild) {
     const card = this._queue[i];
     const quizMode = wx.getStorageSync('mc_quiz_mode') !== 'quiz' ? false : true;
     const hasQuiz = !!(card.quiz && Array.isArray(card.quiz.options) && card.quiz.options.length >= 4 && card.quiz.options.length <= 5 && Number.isInteger(card.quiz.answer) && card.quiz.answer >= 0 && card.quiz.answer < card.quiz.options.length);
@@ -88,7 +116,7 @@ Page({
       answerLetter: 'ABCDE'[card.quiz.answer],
       options: card.quiz.options.map((t, idx) => ({ letter: 'ABCDE'[idx], text: t, index: idx }))
     } : null;
-    this.setData({
+    const patch = {
       idx: i,
       card,
       front: card.front || '',
@@ -101,7 +129,15 @@ Page({
       quizCorrect: null,
       showBack: false,
       streak: limit.streakInfo().count || 0
-    });
+    };
+    if (!noRebuild) {
+      // 换卡：重建整卡触发入场动画
+      patch.cardShown = false;
+      this.setData(patch);
+      setTimeout(() => this.setData({ cardShown: true }), 30);
+    } else {
+      this.setData(patch);
+    }
   },
 
   showAnswer() {

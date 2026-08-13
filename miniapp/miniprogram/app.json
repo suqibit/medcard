@@ -5,17 +5,17 @@
     "pages/records/records"
   ],
   "window": {
-    "backgroundColor": "#F5EFE6",
+    "backgroundColor": "#EDE3C8",
     "backgroundTextStyle": "dark",
-    "navigationBarBackgroundColor": "#4A3F32",
+    "navigationBarBackgroundColor": "#EDE3C8",
     "navigationBarTitleText": "医学记忆卡",
-    "navigationBarTextStyle": "white"
+    "navigationBarTextStyle": "black"
   },
   "tabBar": {
-    "color": "#8B7D6B",
-    "selectedColor": "#4A3F32",
-    "backgroundColor": "#F5EFE6",
-    "borderStyle": "black",
+    "color": "#6B6352",
+    "selectedColor": "#0E5A4A",
+    "backgroundColor": "#F4EDDB",
+    "borderStyle": "white",
     "list": [
       {
         "pagePath": "pages/home/home",
@@ -28,5 +28,6 @@
     ]
   },
   "style": "v2",
+  "lazyCodeLoading": "requiredComponents",
   "sitemapLocation": "sitemap.json"
 }

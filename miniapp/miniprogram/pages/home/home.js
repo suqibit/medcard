@@ -20,7 +20,9 @@ Page({
     genLeft: 0,
     ocrLeft: 0,
     uploadLeft: 0,
-    stats: { total: 0, due: 0, new: 0, streak: 0 },
+    stats: { total: 0, due: 0, new: 0, pending: 0, doneToday: 0, streak: 0 },
+    actionText: '开始复习',
+    actionDone: false,
     placeholder: '粘贴教材/讲义内容，或拍错题照片、上传 PDF/Word…',
     privacyShow: false,
     helpShow: false,
@@ -87,16 +89,37 @@ Page({
   refresh() {
     const L = app.globalData.limits;
     const s = limit.streakInfo();
+    const total = db.totalCount();
+    const due = db.dueCount();
+    const fresh = db.newCount();
+    const learned = db.learnedCount();
+    const pending = Math.max(0, learned - due); // 已学但今天不用复习（还没到到期时间）
+    const doneToday = limit.getDone('rev');     // 今日已复习张数
+    // 按钮三态：有未学习卡 → 开始学习；无未学但有待复习 → 开始复习；都完成 → 已打卡
+    let actionText = '开始复习';
+    let actionDone = false;
+    if (fresh > 0) {
+      actionText = '开始学习';
+    } else if (due > 0) {
+      actionText = '开始复习';
+    } else {
+      actionText = '已打卡';
+      actionDone = true;
+    }
     this.setData({
       genLeft: Math.max(0, L.gen - limit.getDone('gen')),
       ocrLeft: Math.max(0, L.ocr - limit.getDone('ocr')),
       uploadLeft: Math.max(0, L.upload - limit.getDone('upload')),
       stats: {
-        total: db.totalCount(),
-        due: db.dueCount(),
-        new: db.newCount(),
+        total,
+        due,
+        new: fresh,
+        pending,
+        doneToday,
         streak: s.count || 0
-      }
+      },
+      actionText,
+      actionDone
     });
   },
 
@@ -295,6 +318,10 @@ Page({
 
   // ---------- 复习入口 ----------
   startReview() {
+    if (this.data.actionDone) {
+      wx.showToast({ title: '今日已完成，明天再来', icon: 'none' });
+      return;
+    }
     wx.navigateTo({ url: '/pages/review/review' });
   },
   goRecords() {

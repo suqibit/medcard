@@ -94,10 +94,20 @@ Page({
   },
 
   onPrev() {
-    if (this.data.page > 1) this.renderPage(this.data.page - 1);
+    if (this.data.page > 1) {
+      this.renderPage(this.data.page - 1);
+      this.scrollTop();
+    }
   },
   onNext() {
-    if (this.data.page < this.data.totalPages) this.renderPage(this.data.page + 1);
+    if (this.data.page < this.data.totalPages) {
+      this.renderPage(this.data.page + 1);
+      this.scrollTop();
+    }
+  },
+  // 翻页后回到页面顶部（列表从顶部看起，体验连贯）
+  scrollTop() {
+    wx.pageScrollTo({ scrollTop: 0, duration: 300 });
   },
   onTag(e) {
     this.setData({ activeTag: e.currentTarget.dataset.tag });

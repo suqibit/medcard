@@ -1,157 +1,212 @@
-/* app.wxss - 深卡其学术风全局样式（对齐 web 版品牌） */
+/* app.wxss - 深卡其学术风全局样式 v2（对齐 web 版 medcard.icu 品牌，finesse-ui 工艺层） */
 page {
-  background: #F5EFE6;
-  color: #2B2620;
+  /* 调色板 token：与 web 版同灵魂 */
+  --bg: #EDE3C8;
+  --card: #FAF4E2;
+  --ink: #2B2924;
+  --ink-2: #4A453A;
+  --sub: #6B6352;
+  --line: #D8CBAA;
+  --line-strong: #C4B68F;
+  --accent: #0E5A4A;
+  --accent-2: #0A473A;
+  --accent-soft: #E3EDE4;
+  --danger: #8C2F1E;
+  --warn: #A05A2C;
+  --ok: #2F6B3E;
+  /* 工艺层 */
+  --r: 36rpx;
+  --r-sm: 24rpx;
+  --r-lg: 52rpx;
+  --shadow-card: 0 2rpx 4rpx rgba(43, 41, 36, 0.05), 0 20rpx 56rpx -28rpx rgba(43, 41, 36, 0.16);
+  --shadow-float: 0 48rpx 120rpx -48rpx rgba(43, 41, 36, 0.35);
+  --border-hair: 1rpx solid rgba(43, 41, 36, 0.08);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  background: var(--bg);
+  color: var(--ink);
   font-size: 28rpx;
   line-height: 1.6;
+  /* 纸感：浅色光晕叠加（小程序兼容的 linear-gradient 写法） */
+  background-image:
+    linear-gradient(180deg, rgba(255, 248, 224, 0.65) 0%, rgba(255, 248, 224, 0) 45%),
+    linear-gradient(0deg, rgba(14, 90, 74, 0.04) 0%, rgba(14, 90, 74, 0) 60%);
 }
 
-/* 通用卡片容器 */
+/* ===== 动效 keyframes（轻量 R1 路线，只做状态反馈） ===== */
+@keyframes fadeUp { from { opacity: 0; transform: translateY(24rpx); } to { opacity: 1; transform: none; } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes popIn { 0% { transform: scale(0.96); opacity: 0.4; } 60% { transform: scale(1.02); } 100% { transform: scale(1); opacity: 1; } }
+@keyframes maskIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes sheetIn { from { opacity: 0; transform: translateY(40rpx) scale(0.97); } to { opacity: 1; transform: none; } }
+@keyframes shakeX { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-6rpx); } 75% { transform: translateX(6rpx); } }
+
+/* 通用卡片容器：圆角 36rpx + hairline 细边 + 分层阴影（不再方盒硬边） */
 .card {
-  background: #FFFDF8;
-  border: 1rpx solid #E3D9C8;
-  border-radius: 16rpx;
-  padding: 24rpx;
+  background: var(--card);
+  border: var(--border-hair);
+  border-radius: var(--r);
+  padding: 28rpx;
   margin: 16rpx 24rpx;
-  box-shadow: 0 4rpx 12rpx rgba(74, 63, 50, 0.06);
+  box-shadow: var(--shadow-card);
+  animation: fadeUp 0.4s var(--ease-out) backwards;
 }
 
 /* 主按钮 */
 .btn-primary {
-  background: #6B5B45;
-  color: #F5EFE6;
-  border-radius: 12rpx;
+  background: var(--accent);
+  color: #F7F3E6;
+  border-radius: var(--r-sm);
   font-size: 30rpx;
   padding: 20rpx 0;
   text-align: center;
   margin: 16rpx 24rpx;
+  box-shadow: 0 4rpx 20rpx rgba(14, 90, 74, 0.28);
+  transition: transform 0.15s var(--ease-out), box-shadow 0.2s var(--ease-out), background 0.2s;
 }
-.btn-primary:active { opacity: 0.85; }
-.btn-primary.disabled { background: #B5A894; }
+.btn-primary:active { transform: scale(0.97); box-shadow: 0 2rpx 8rpx rgba(14, 90, 74, 0.3); }
+.btn-primary.disabled { background: #B5A894; box-shadow: none; }
 
 /* 次按钮 */
 .btn-secondary {
-  background: #EDE4D4;
-  color: #4A3F32;
-  border-radius: 12rpx;
+  background: var(--card);
+  color: var(--accent);
+  border: 1.5rpx solid var(--accent);
+  border-radius: var(--r-sm);
   font-size: 28rpx;
   padding: 16rpx 0;
   text-align: center;
   margin: 12rpx 24rpx;
+  transition: background 0.2s, transform 0.15s var(--ease-out);
 }
-.btn-secondary:active { opacity: 0.85; }
+.btn-secondary:active { background: var(--accent-soft); transform: scale(0.97); }
 
 /* 危险按钮 */
 .btn-danger {
-  background: #C0392B;
-  color: #FFF;
-  border-radius: 12rpx;
+  background: var(--danger);
+  color: #F7F3E6;
+  border-radius: var(--r-sm);
   font-size: 28rpx;
   padding: 16rpx 0;
   text-align: center;
   margin: 12rpx 24rpx;
+  transition: transform 0.15s var(--ease-out);
 }
+.btn-danger:active { transform: scale(0.97); }
 
 /* 标签 */
 .tag {
   display: inline-block;
-  background: #DCE6DE;
-  color: #0E5A4A;
-  border: 1rpx solid #0E5A4A;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: 1rpx solid rgba(14, 90, 74, 0.25);
   font-size: 22rpx;
-  border-radius: 8rpx;
-  padding: 4rpx 14rpx;
+  border-radius: 999rpx;
+  padding: 4rpx 18rpx;
   margin: 4rpx 8rpx 4rpx 0;
 }
 
 /* 提示条 */
 .note {
-  background: #F0E7D6;
-  color: #6B5B45;
+  background: rgba(160, 90, 44, 0.08);
+  color: var(--warn);
   font-size: 24rpx;
-  border-radius: 10rpx;
+  border-radius: var(--r-sm);
   padding: 14rpx 20rpx;
   margin: 12rpx 24rpx;
+  border: 1rpx solid rgba(160, 90, 44, 0.25);
 }
 
 /* 红色警告条（调试/异常） */
 .warn {
-  background: #FBE3E0;
-  color: #A33B2E;
+  background: rgba(140, 47, 30, 0.07);
+  color: var(--danger);
   font-size: 24rpx;
-  border-radius: 10rpx;
+  border-radius: var(--r-sm);
   padding: 14rpx 20rpx;
   margin: 12rpx 24rpx;
+  border: 1rpx solid rgba(140, 47, 30, 0.3);
+  animation: shakeX 0.4s var(--ease-out);
 }
 
 /* 成功提示条 */
 .ok {
-  background: #DCE6DE;
-  color: #0E5A4A;
+  background: var(--accent-soft);
+  color: var(--accent);
   font-size: 24rpx;
-  border-radius: 10rpx;
+  border-radius: var(--r-sm);
   padding: 14rpx 20rpx;
   margin: 12rpx 24rpx;
+  border: 1rpx solid rgba(14, 90, 74, 0.2);
+  animation: fadeUp 0.35s var(--ease-out);
 }
 
 /* 区块标题 */
 .section-title {
   font-size: 32rpx;
   font-weight: 600;
-  color: #4A3F32;
+  color: var(--ink);
   margin: 32rpx 24rpx 8rpx;
+  letter-spacing: 0.05em;
 }
 
 /* 灰色辅助文字 */
-.muted {
-  color: #8B7D6B;
-  font-size: 24rpx;
-}
+.muted { color: var(--sub); font-size: 24rpx; }
 
 /* 到期红色 */
-.due { color: #C0392B; }
+.due { color: var(--danger); font-weight: 700; }
 
 /* 隐藏（兜底，防 display 覆盖） */
 [hidden] { display: none !important; }
 
-/* 隐私弹窗（全局：首页/复习页共用） */
+/* ===== 弹窗（隐私/帮助/标签管理共用）：遮罩淡入 + 面板上浮 ===== */
 .privacy-mask, .modal-mask {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(43, 38, 32, 0.55);
+  background: rgba(43, 41, 36, 0.5);
   z-index: 999;
   display: flex;
   align-items: center;
   justify-content: center;
+  animation: maskIn 0.25s ease-out;
+  -webkit-backdrop-filter: blur(4rpx);
+  backdrop-filter: blur(4rpx);
 }
 .privacy-box, .modal-box {
   position: relative;
-  background: #FFFDF8;
-  border-radius: 20rpx;
+  background: var(--card);
+  border: 1rpx solid rgba(14, 90, 74, 0.25);
+  border-radius: var(--r-lg);
   padding: 40rpx 32rpx;
   margin: 0 40rpx;
   max-height: 80vh;
   overflow-y: auto;
+  box-shadow: var(--shadow-float);
+  animation: sheetIn 0.35s var(--ease-pop);
 }
 .privacy-title, .modal-title {
   font-size: 34rpx;
-  font-weight: 600;
-  color: #4A3F32;
+  font-weight: 700;
+  color: var(--ink);
   text-align: center;
   margin-bottom: 24rpx;
+  letter-spacing: 0.05em;
 }
 .privacy-item, .modal-item {
   font-size: 26rpx;
-  color: #4A3F32;
+  color: var(--ink-2);
   line-height: 1.7;
   margin-bottom: 18rpx;
 }
-.privacy-strong { font-weight: 600; color: #2B2620; }
+.privacy-strong { font-weight: 600; color: var(--accent); }
 .privacy-note, .modal-note {
   font-size: 24rpx;
-  color: #6B5B45;
-  background: #F0E7D6;
-  border-radius: 10rpx;
+  color: var(--sub);
+  background: rgba(160, 90, 44, 0.08);
+  border-radius: var(--r-sm);
   padding: 16rpx 20rpx;
   margin: 8rpx 0 24rpx;
+  border: 1rpx solid rgba(160, 90, 44, 0.2);
 }
+

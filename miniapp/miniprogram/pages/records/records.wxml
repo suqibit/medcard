@@ -28,7 +28,7 @@
     <view class="muted">没有符合条件的卡片</view>
   </view>
 
-  <view class="card" wx:for="{{cards}}" wx:key="id">
+  <view class="card rec-card" wx:for="{{cards}}" wx:key="id">
     <view class="rec-front">{{item.front}}</view>
     <view class="rec-meta muted">
       <text>轮数 {{item.rounds}}</text>

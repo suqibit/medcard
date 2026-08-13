@@ -6,6 +6,15 @@ import json
 import base64 as _b64
 import tempfile
 import random
+import hashlib
+import hmac
+import time
+import smtplib
+from email.mime.text import MIMEText
+from email.header import Header
+from email.utils import formataddr
+
+from functools import wraps
 
 import requests
 from flask import Flask, request, send_file, jsonify, render_template
@@ -34,28 +43,10 @@ def load_env_file():
 
 
 def load_deepseek_key():
-    """key 优先级：环境变量 > .env 文件 > venv activate 脚本兜底"""
+    """key 优先级：环境变量 > .env 文件"""
     load_env_file()
     k = os.environ.get("DEEPSEEK_API_KEY")
-    if k and not k.startswith("PUT_YOUR"):
-        return k
-    # 兜底：从 venv 激活脚本读取（覆盖不同 shell 的环境传递差异）
-    cands = [
-        os.path.join(BASE_DIR, "venv", "Scripts", "activate"),
-        os.path.join(BASE_DIR, "venv", "Scripts", "activate.bat"),
-        os.path.join(BASE_DIR, "venv", "Scripts", "Activate.ps1"),
-    ]
-    for p in cands:
-        try:
-            with open(p, encoding="utf-8", errors="ignore") as f:
-                for line in f:
-                    if "DEEPSEEK_API_KEY" in line and "=" in line and "PUT_YOUR" not in line:
-                        m = re.search(r'DEEPSEEK_API_KEY["\']?\s*[:=]\s*["\']?([^"\'\n]+)', line)
-                        if m:
-                            return m.group(1).strip().strip('"').strip("'")
-        except Exception:
-            continue
-    return None
+    return k if k and not k.startswith("PUT_YOUR") else None
 
 
 def load_zhipu_key():
@@ -108,6 +99,75 @@ WRONG_PROMPT = """你是一名医学教育内容专家，专门帮助考研学�
 
 MODEL_ID = 1607392319
 
+# Anki 卡片模型：结构固定，模块级建一次所有请求复用
+ANKI_MODEL = genanki.Model(
+    MODEL_ID,
+    "MedCardModel",
+    fields=[{"name": "Front"}, {"name": "Back"}],
+    templates=[
+        {
+            "name": "Card",
+            "qfmt": "{{Front}}",
+            "afmt": '{{Front}}<hr id="answer">{{Back}}',
+        }
+    ],
+)
+
+# ---------- API 鉴权：页面加载时按 IP+小时签发短 token（HMAC），有效期至下一小时结束 ----------
+# 设计：token 由 GET / 渲染页面时注入 HTML（data-token），前端 fetch 带 X-API-Token 头。
+# 陌生人不知道 API_SECRET 就算拿到接口地址也算不出 token → 401。
+# 未配置 API_SECRET（.env/环境变量均无）时鉴权自动关闭（本地开发不锁死）。
+# ponytail: 无登录系统的 MVP 能防的最懒方案；不做每请求刷新/限流，接口被反代转发时以 remote_addr 为准。
+API_SECRET = os.environ.get("API_SECRET", "")
+
+
+def make_token(ip, hour):
+    """HMAC-SHA256(secret, 'ip:小时') 前 16 位。小时粒度 = 同一小时多次刷新页面拿到同一 token。"""
+    msg = f"{ip}:{hour}".encode()
+    return hmac.new((API_SECRET or "nosecret").encode(), msg, hashlib.sha256).hexdigest()[:16]
+
+
+def token_ok():
+    """校验 X-API-Token。当前小时与上一小时都接受（跨小时边界容忍，避免整点报错）。"""
+    t = request.headers.get("X-API-Token", "")
+    if not t:
+        return False
+    ip = request.remote_addr or "0.0.0.0"
+    hour = int(time.time()) // 3600
+    return any(hmac.compare_digest(t, make_token(ip, h)) for h in (hour, hour - 1))
+
+
+def api_guard(fn):
+    """AI/邮件接口守卫：无有效 token 一律 401（在业务校验之前执行）"""
+
+    @wraps(fn)
+    def wrapper(*a, **k):
+        if API_SECRET and not token_ok():
+            return jsonify({"error": "未授权：请从网站页面操作"}), 401
+        return fn(*a, **k)
+
+    return wrapper
+
+
+# ---------- 意见反馈邮件（163 SMTP，授权码走环境变量 SMTP_AUTH_CODE） ----------
+SMTP_HOST = "smtp.163.com"
+SMTP_PORT = 465
+SMTP_USER = "suqiqinak@163.com"
+SMTP_AUTH_CODE = os.environ.get("SMTP_AUTH_CODE", "")
+
+
+def send_feedback_email(msg):
+    """发意见反馈邮件到作者邮箱；msg 为纯文本。无授权码或发送失败抛异常。"""
+    if not SMTP_AUTH_CODE:
+        raise RuntimeError("未配置 SMTP_AUTH_CODE（.env 或环境变量）")
+    mime = MIMEText(msg, "plain", "utf-8")
+    mime["From"] = formataddr((str(Header("医学记忆卡反馈", "utf-8")), SMTP_USER))
+    mime["To"] = formataddr((str(Header("作者", "utf-8")), SMTP_USER))
+    mime["Subject"] = str(Header("【医学记忆卡】用户意见反馈", "utf-8"))
+    with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT, timeout=15) as srv:
+        srv.login(SMTP_USER, SMTP_AUTH_CODE)
+        srv.sendmail(SMTP_USER, [SMTP_USER], mime.as_string())
+
 
 def parse_ai_json(content):
     """容错解析 AI 返回的 JSON：先直解，失败截取最外层花括号再解，仍失败返回 None。"""
@@ -117,9 +177,10 @@ def parse_ai_json(content):
         return json.loads(content)
     except Exception:
         pass
-    s = content[content.find("{"): content.rfind("}") + 1]
-    if not s:
+    i, j = content.find("{"), content.rfind("}")
+    if i < 0 or j <= i:
         return None
+    s = content[i: j + 1]
     try:
         return json.loads(s)
     except Exception:
@@ -200,23 +261,11 @@ def rule_extract_cards(text, max_cards=15):
 
 
 def build_deck(cards, deck_name):
-    model = genanki.Model(
-        MODEL_ID,
-        "MedCardModel",
-        fields=[{"name": "Front"}, {"name": "Back"}],
-        templates=[
-            {
-                "name": "Card",
-                "qfmt": "{{Front}}",
-                "afmt": '{{Front}}<hr id="answer">{{Back}}',
-            }
-        ],
-    )
     deck_id = random.randint(1 << 30, 1 << 31)
     deck = genanki.Deck(deck_id, deck_name or "医学记忆卡")
     for c in cards:
         note = genanki.Note(
-            model, fields=[str(c.get("front", "")), str(c.get("back", ""))]
+            ANKI_MODEL, fields=[str(c.get("front", "")), str(c.get("back", ""))]
         )
         if c.get("tags"):
             note.tags = [str(t) for t in c["tags"]]
@@ -240,7 +289,9 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    # 页面注入当小时 token，前端 fetch 携带 X-API-Token 头
+    ip = request.remote_addr or "0.0.0.0"
+    return render_template("index.html", api_token=make_token(ip, int(time.time()) // 3600))
 
 
 @app.route("/records")
@@ -249,6 +300,7 @@ def records():
 
 
 @app.route("/generate", methods=["POST"])
+@api_guard
 def generate():
     print(f">>> /generate key={'SET' if DEEPSEEK_KEY else 'NONE'}", flush=True)
     data = request.get_json(force=True, silent=True) or {}
@@ -305,6 +357,7 @@ MAX_UPLOAD = 4 * 1024 * 1024  # 4MB（Vercel 函数体 4.5MB 限制的保守值�
 
 
 @app.route("/extract_pdf", methods=["POST"])
+@api_guard
 def extract_pdf():
     """上传 PDF → 提取文字；扫描件（无文字层）自动渲染成图片走智谱 OCR 兜底（最多前 3 页）"""
     f = request.files.get("file")
@@ -347,6 +400,7 @@ def extract_pdf():
 
 
 @app.route("/extract_docx", methods=["POST"])
+@api_guard
 def extract_docx():
     """上传 Word(.docx) → 提取段落+表格文字 → 返回（限 5 万字）"""
     f = request.files.get("file")
@@ -428,6 +482,7 @@ def zhipu_ocr_image(data, mime):
 
 
 @app.route("/ocr", methods=["POST"])
+@api_guard
 def ocr():
     """上传图片 → 智谱免费视觉模型(glm-4v-flash)提取文字 → 返回（限 4MB）"""
     f = request.files.get("file")
@@ -448,10 +503,30 @@ def ocr():
         return jsonify({"error": f"图片识别失败：{e}"}), 500
 
 
+@app.route("/feedback", methods=["POST"])
+@api_guard
+def feedback():
+    """意见反馈：前端提交文本 → 163 SMTP 发到作者邮箱（无授权码时返回 501 提示）"""
+    data = request.get_json(force=True, silent=True) or {}
+    msg = (data.get("msg") or "").strip()
+    if not msg:
+        return jsonify({"error": "反馈内容不能为空"}), 400
+    if len(msg) > 2000:
+        msg = msg[:2000]
+    try:
+        send_feedback_email("用户意见反馈：\n\n" + msg)
+        return jsonify({"ok": True})
+    except RuntimeError as e:
+        return jsonify({"error": str(e)}), 501
+    except Exception as e:
+        return jsonify({"error": f"邮件发送失败：{e}"}), 500
+
+
 if __name__ == "__main__":
     print(
         f">>> STARTUP key={'SET' if DEEPSEEK_KEY else 'NONE'} "
-        f"zhipu={'SET' if ZHIPU_KEY else 'NONE'}",
+        f"zhipu={'SET' if ZHIPU_KEY else 'NONE'} "
+        f"smtp={'SET' if SMTP_AUTH_CODE else 'NONE'}",
         flush=True,
     )
     app.run(host="127.0.0.1", port=5000, debug=False)

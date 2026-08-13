@@ -30,10 +30,10 @@
       <view class="mode-pill {{quizModePref ? 'active' : ''}}" data-m="quiz" bindtap="toggleQuizMode">选择题模式</view>
     </view>
 
-    <view class="card">
-      <!-- 选择题模式 -->
+    <view class="card card-anim" wx:if="{{cardShown}}" style="{{cardH ? 'height:' + cardH + 'rpx;' : ''}}">
+      <!-- 选择题模式（wx:if 分支切换 → 新块装载 → 动画天然重放） -->
       <block wx:if="{{quiz}}">
-        <view class="quiz-q">{{quiz.question}}</view>
+        <view class="quiz-q anim-in">{{quiz.question}}</view>
         <view
           wx:for="{{quiz.options}}"
           wx:key="index"
@@ -48,14 +48,14 @@
 
       <!-- 问答模式：正面 -->
       <block wx:if="{{!quiz && !showBack}}">
-        <view class="front-text">{{front}}</view>
+        <view class="front-text anim-in">{{front}}</view>
         <view class="btn-primary" bindtap="showAnswer">显示答案</view>
       </block>
 
       <!-- 问答模式：背面（答案+解析+关联考点） -->
       <block wx:if="{{!quiz && showBack}}">
-        <view class="front-text">{{front}}</view>
-        <view class="back-text">{{back}}</view>
+        <view class="front-text anim-in">{{front}}</view>
+        <view class="back-text anim-in">{{back}}</view>
         <view class="tags-row">
           <text class="tag" wx:for="{{tags}}" wx:key="*this">{{item}}</text>
         </view>

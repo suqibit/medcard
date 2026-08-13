@@ -1,16 +1,25 @@
-/* pages/home/home.wxss */
+/* pages/home/home.wxss v2 - 深卡其学术风 */
 .page { padding-bottom: 60rpx; }
 
-.stat-row { display: flex; justify-content: space-around; padding: 8rpx 0 16rpx; }
-.stat-item { text-align: center; }
-.stat-num { font-size: 40rpx; font-weight: 600; color: #4A3F32; }
-.stat-label { font-size: 22rpx; color: #8B7D6B; }
+/* 首页首屏入场：卡片依次上浮 */
+.home-card { animation: fadeUp 0.5s var(--ease-out) backwards; }
+.home-card:nth-of-type(2) { animation-delay: 0.08s; }
+.home-card:nth-of-type(3) { animation-delay: 0.16s; }
 
+/* 复习入口：KPI 大数字卡片（6 项 3×2 排布） */
+.stat-row { display: flex; flex-wrap: wrap; padding: 8rpx 0 20rpx; }
+.stat-item { text-align: center; flex: 0 0 33.33%; padding: 12rpx 0; }
+.stat-num { font-size: 40rpx; font-weight: 800; color: var(--ink); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.stat-num.due { color: var(--danger); }
+.stat-num.ok-num { color: var(--accent); }
+.stat-label { font-size: 22rpx; color: var(--sub); margin-top: 4rpx; }
+
+/* 模式切换：胶囊分段控件 */
 .mode-switch {
   display: flex;
   margin: 8rpx 24rpx;
-  background: #EDE4D4;
-  border-radius: 12rpx;
+  background: rgba(43, 41, 36, 0.05);
+  border-radius: var(--r-sm);
   padding: 6rpx;
 }
 .mode-btn {
@@ -18,21 +27,29 @@
   text-align: center;
   padding: 14rpx 0;
   font-size: 28rpx;
-  color: #6B5B45;
-  border-radius: 10rpx;
+  color: var(--sub);
+  border-radius: 18rpx;
+  transition: background 0.2s var(--ease-out), color 0.2s;
 }
-.mode-btn.active { background: #6B5B45; color: #F5EFE6; }
+.mode-btn.active {
+  background: var(--accent);
+  color: #F7F3E6;
+  box-shadow: 0 4rpx 16rpx rgba(14, 90, 74, 0.35);
+}
 
 .input-area {
   width: 100%;
   min-height: 200rpx;
-  background: #FFFDF8;
-  border: 1rpx solid #E3D9C8;
-  border-radius: 10rpx;
+  background: #F5EDD6;
+  border: 1rpx solid var(--line);
+  border-radius: var(--r-sm);
   padding: 16rpx;
   box-sizing: border-box;
   font-size: 28rpx;
+  color: var(--ink);
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
+.input-area:focus { border-color: var(--accent); box-shadow: 0 0 0 6rpx rgba(14, 90, 74, 0.12); }
 
 .input-row {
   display: flex;
@@ -43,124 +60,92 @@
 .deck-input {
   flex: 1;
   margin-left: 16rpx;
-  background: #FFFDF8;
-  border: 1rpx solid #E3D9C8;
-  border-radius: 8rpx;
+  background: #F5EDD6;
+  border: 1rpx solid var(--line);
+  border-radius: var(--r-sm);
   padding: 10rpx 14rpx;
   font-size: 26rpx;
   text-align: right;
+  transition: border-color 0.2s;
 }
+.deck-input:focus { border-color: var(--accent); }
 
 .opt-group { display: flex; margin-left: 16rpx; }
 .opt-btn {
-  background: #EDE4D4;
-  color: #6B5B45;
-  border-radius: 8rpx;
+  background: rgba(43, 41, 36, 0.05);
+  color: var(--sub);
+  border-radius: var(--r-sm);
   padding: 8rpx 20rpx;
   font-size: 24rpx;
   margin-left: 10rpx;
+  transition: background 0.2s, color 0.2s;
 }
-.opt-btn.active { background: #6B5B45; color: #F5EFE6; }
+.opt-btn.active { background: var(--accent); color: #F7F3E6; box-shadow: 0 2rpx 10rpx rgba(14, 90, 74, 0.3); }
 
 .preview-item {
-  border-bottom: 1rpx dashed #E3D9C8;
+  border-bottom: 1rpx dashed var(--line-strong);
   padding: 16rpx 0;
+  animation: fadeUp 0.35s var(--ease-out) backwards;
 }
-.preview-front { font-weight: 600; color: #4A3F32; }
+.preview-item:nth-child(2) { animation-delay: 0.05s; }
+.preview-item:nth-child(3) { animation-delay: 0.1s; }
+.preview-item:nth-child(n+4) { animation-delay: 0.15s; }
+.preview-front { font-weight: 600; color: var(--ink); }
 .preview-back {
   font-size: 26rpx;
-  color: #6B5B45;
+  color: var(--ink-2);
   white-space: pre-wrap;
   margin-top: 8rpx;
 }
-.preview-tags { margin-top: 8rpx; }
 
 .empty-text {
   font-size: 32rpx;
-  color: #4A3F32;
-  font-weight: 600;
+  color: var(--ink);
+  font-weight: 700;
   margin-bottom: 8rpx;
-}
-
-/* 首次进入隐私弹窗 */
-.privacy-mask {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(43, 38, 32, 0.55);
-  z-index: 999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.privacy-box {
-  background: #FFFDF8;
-  border-radius: 20rpx;
-  padding: 40rpx 32rpx;
-  margin: 0 40rpx;
-  max-height: 80vh;
-  overflow-y: auto;
-}
-.privacy-title {
-  font-size: 34rpx;
-  font-weight: 600;
-  color: #4A3F32;
-  text-align: center;
-  margin-bottom: 24rpx;
-}
-.privacy-item {
-  font-size: 26rpx;
-  color: #4A3F32;
-  line-height: 1.7;
-  margin-bottom: 18rpx;
-}
-.privacy-strong { font-weight: 600; color: #2B2620; }
-.privacy-note {
-  font-size: 24rpx;
-  color: #6B5B45;
-  background: #F0E7D6;
-  border-radius: 10rpx;
-  padding: 16rpx 20rpx;
-  margin: 8rpx 0 24rpx;
 }
 
 /* 标签管理入口 */
 .tag-mgmt-link {
-  color: #0E5A4A;
+  color: var(--accent);
   font-size: 24rpx;
   margin-left: 12rpx;
-  padding: 4rpx 10rpx;
-  border: 1rpx solid #0E5A4A;
-  border-radius: 8rpx;
+  padding: 4rpx 12rpx;
+  border: 1rpx solid var(--accent);
+  border-radius: var(--r-sm);
+  transition: background 0.2s;
 }
-.tag-mgmt-link:active { opacity: 0.7; }
+.tag-mgmt-link:active { background: var(--accent-soft); }
 
 /* 标签管理弹窗 */
 .tag-input-row { display: flex; align-items: center; margin: 12rpx 0 16rpx; }
 .tag-input {
   flex: 1;
-  background: #FFFDF8;
-  border: 1rpx solid #E3D9C8;
-  border-radius: 8rpx;
+  background: #F5EDD6;
+  border: 1rpx solid var(--line);
+  border-radius: var(--r-sm);
   padding: 10rpx 14rpx;
   font-size: 26rpx;
 }
 .tag-add-btn {
-  background: #6B5B45;
-  color: #F5EFE6;
-  border-radius: 8rpx;
+  background: var(--accent);
+  color: #F7F3E6;
+  border-radius: var(--r-sm);
   padding: 10rpx 24rpx;
   font-size: 26rpx;
   margin-left: 12rpx;
+  transition: background 0.2s, transform 0.15s var(--ease-out);
 }
+.tag-add-btn:active { background: var(--accent-2); transform: scale(0.95); }
 .tag-list { margin-bottom: 16rpx; }
 .tag-mgmt-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 8rpx 0;
-  border-bottom: 1rpx dashed #E3D9C8;
+  border-bottom: 1rpx dashed var(--line-strong);
 }
-.tag-del { color: #A33B2E; font-size: 24rpx; padding: 4rpx 8rpx; }
+.tag-del { color: var(--danger); font-size: 24rpx; padding: 4rpx 8rpx; }
 
 /* 底部数据提示 */
 .data-note { margin-top: 32rpx; }

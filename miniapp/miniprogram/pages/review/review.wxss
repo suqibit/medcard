@@ -1,85 +1,110 @@
-/* pages/review/review.wxss */
+/* pages/review/review.wxss v2 - 深卡其学术风 */
 .page { padding-bottom: 60rpx; }
 .center-text { text-align: center; margin: 8rpx 0; }
-.progress { text-align: center; margin-top: 20rpx; }
+.progress { text-align: center; margin-top: 20rpx; color: var(--sub); font-size: 26rpx; letter-spacing: 0.05em; }
 
-/* 问答/选择题模式切换 */
+/* 问答/选择题模式切换：胶囊 + 滑块感 */
 .mode-line {
   display: flex;
   justify-content: center;
   margin: 16rpx 24rpx 4rpx;
 }
 .mode-pill {
-  background: #EDE4D4;
-  color: #6B5B45;
-  border-radius: 24rpx;
+  background: rgba(43, 41, 36, 0.05);
+  color: var(--sub);
+  border-radius: 999rpx;
   padding: 8rpx 30rpx;
   font-size: 24rpx;
   margin: 0 8rpx;
+  transition: background 0.2s var(--ease-out), color 0.2s, transform 0.15s var(--ease-out);
 }
+.mode-pill:active { transform: scale(0.95); }
 .mode-pill.active {
-  background: #6B5B45;
-  color: #F5EFE6;
+  background: var(--accent);
+  color: #F7F3E6;
+  box-shadow: 0 4rpx 14rpx rgba(14, 90, 74, 0.3);
 }
 
-.done-title { font-size: 34rpx; font-weight: 600; color: #2F6B3E; padding: 20rpx 0; }
+.done-title { font-size: 34rpx; font-weight: 700; color: var(--ok); padding: 20rpx 0; animation: popIn 0.4s var(--ease-pop); }
 
+/* 卡片切换动效：wx:if 重建 → fadeUp 重放；高度由 JS cardH 驱动过渡（模式切换用） */
+.card-anim {
+  animation: fadeUp 0.45s var(--ease-out);
+  transition: height 0.32s var(--ease-out);
+}
+/* 模式切换后的新内容淡入 */
+.anim-in { animation: fadeUp 0.3s var(--ease-out); }
+
+/* 复习卡：内容区切换动效 */
 .front-text {
   font-size: 34rpx;
-  font-weight: 600;
-  color: #4A3F32;
+  font-weight: 700;
+  color: var(--ink);
   padding: 12rpx 0 24rpx;
+  line-height: 1.6;
+  animation: fadeUp 0.35s var(--ease-out);
 }
-
 .back-text {
   font-size: 28rpx;
-  color: #2B2620;
+  color: var(--ink-2);
   white-space: pre-wrap;
-  background: #F7F2E8;
-  border-radius: 10rpx;
+  background: #F5EDD6;
+  border-radius: var(--r-sm);
   padding: 16rpx;
   margin: 8rpx 0;
+  line-height: 1.75;
+  border-left: 6rpx solid var(--accent);
+  animation: fadeUp 0.4s var(--ease-out);
 }
 
-.tags-row { margin-top: 12rpx; }
+.tags-row { margin-top: 12rpx; animation: fadeIn 0.45s var(--ease-out); }
 .source {
   margin-top: 12rpx;
-  border-top: 1rpx dashed #E3D9C8;
+  border-top: 1rpx dashed var(--line-strong);
   padding-top: 10rpx;
+  animation: fadeIn 0.5s var(--ease-out);
 }
 
 /* 选择题 */
-.quiz-q { font-size: 32rpx; font-weight: 600; color: #4A3F32; margin-bottom: 16rpx; }
+.quiz-q { font-size: 32rpx; font-weight: 700; color: var(--ink); margin-bottom: 16rpx; line-height: 1.6; }
 .quiz-opt {
-  background: #FFFDF8;
-  border: 1rpx solid #E3D9C8;
-  border-radius: 10rpx;
-  padding: 14rpx 18rpx;
+  background: var(--card);
+  border: 1rpx solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 16rpx 18rpx;
   margin-bottom: 12rpx;
   font-size: 27rpx;
+  color: var(--ink);
+  transition: border-color 0.15s, background 0.15s, transform 0.12s var(--ease-out);
+  animation: fadeUp 0.3s var(--ease-out) backwards;
 }
+.quiz-opt:active { border-color: var(--accent); background: rgba(14, 90, 74, 0.04); transform: translateX(4rpx); }
 .quiz-opt.correct {
-  background: #DCE6DE;
-  border-color: #0E5A4A;
-  color: #0E5A4A;
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+  animation: popIn 0.35s var(--ease-pop);
 }
-.quiz-res { font-size: 28rpx; font-weight: 600; margin-top: 8rpx; }
-.ok-text { color: #0E5A4A; }
-.warn-text { color: #A33B2E; }
+.quiz-res { font-size: 28rpx; font-weight: 600; margin-top: 8rpx; animation: fadeUp 0.3s var(--ease-out); }
+.ok-text { color: var(--accent); }
+.warn-text { color: var(--danger); }
 
-/* 评级 */
+/* 评级按钮：四色 + 按压反馈 */
 .rate-row { display: flex; justify-content: space-between; margin: 12rpx 0; }
 .rate-btn {
   flex: 1;
   text-align: center;
-  border-radius: 10rpx;
+  border-radius: var(--r-sm);
   padding: 18rpx 0;
   margin: 0 6rpx;
   font-size: 28rpx;
-  color: #FFF;
+  color: #F7F3E6;
+  transition: transform 0.15s var(--ease-out), box-shadow 0.2s;
 }
-.r1 { background: #C0392B; }
-.r2 { background: #D68910; }
-.r3 { background: #0E5A4A; }
+.rate-btn:active { transform: scale(0.92); }
+.r1 { background: var(--danger); }
+.r2 { background: var(--warn); }
+.r3 { background: var(--accent); }
 .r4 { background: #1A5276; }
-.rate-label { text-align: center; }
+.rate-label { text-align: center; color: var(--sub); }

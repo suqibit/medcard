@@ -2,7 +2,7 @@
 <view class="page">
 
   <!-- 复习入口卡片 -->
-  <view class="card" wx:if="{{stats.total > 0}}">
+  <view class="card home-card" wx:if="{{stats.total > 0}}">
     <view class="stat-row">
       <view class="stat-item">
         <view class="stat-num due">{{stats.due}}</view>
@@ -13,6 +13,14 @@
         <view class="stat-label">待学习</view>
       </view>
       <view class="stat-item">
+        <view class="stat-num">{{stats.pending}}</view>
+        <view class="stat-label">待复习</view>
+      </view>
+      <view class="stat-item">
+        <view class="stat-num ok-num">{{stats.doneToday}}</view>
+        <view class="stat-label">今日已复习</view>
+      </view>
+      <view class="stat-item">
         <view class="stat-num">{{stats.streak}}</view>
         <view class="stat-label">连续打卡</view>
       </view>
@@ -21,7 +29,7 @@
         <view class="stat-label">卡片总数</view>
       </view>
     </view>
-    <view class="btn-primary" bindtap="startReview">开始复习</view>
+    <view class="btn-primary {{actionDone ? 'disabled' : ''}}" bindtap="startReview">{{actionText}}</view>
   </view>
 
   <!-- 生成区 -->
