@@ -52,13 +52,6 @@
   .help-x{position:absolute;top:10px;right:16px;background:none;border:none;font-size:24px;line-height:1;color:var(--sub);cursor:pointer;padding:4px;border-radius:8px;transition:color .15s,transform .15s}
   .help-x:hover{color:var(--danger);transform:rotate(90deg)}
   .help-btns{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
-  .privacybox{position:relative;background:var(--card);border:1px solid rgba(14,90,74,.25);border-radius:var(--r-lg);max-width:520px;width:100%;padding:32px 30px 26px;box-shadow:var(--shadow-float)}
-  .privacybox h3{font-family:"Noto Serif SC",serif;font-size:20px;letter-spacing:1px;margin-bottom:16px;color:var(--accent)}
-  .privacybox p,.privacybox li{font-size:13.5px;line-height:1.9;color:var(--ink)}
-  .privacybox ul{margin:4px 0 12px;padding-left:20px}
-  .privacybox li{margin-bottom:8px}
-  .privacybox .ps{font-size:12px;color:var(--sub);border-top:1px dashed var(--rule);padding-top:10px;margin-top:12px}
-  .privacy-btns{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
   .ocrbox{background:var(--card);border:1px solid rgba(14,90,74,.25);border-radius:var(--r-lg);max-width:320px;width:100%;padding:36px 28px;text-align:center;box-shadow:var(--shadow-float)}
   .spinner{width:38px;height:38px;border:4px solid var(--accent-soft);border-top-color:var(--accent);border-radius:50%;margin:0 auto 18px;animation:spin .9s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
@@ -618,23 +611,6 @@
   </div>
 </div>
 
-<!-- 隐私说明弹窗（首次进入） -->
-<div class="mask" id="privacyMask" hidden>
-  <div class="privacybox" role="dialog" aria-label="隐私与数据说明">
-    <button class="help-x" id="privacyX" title="关闭">&times;</button>
-    <h3>隐私与数据说明</h3>
-    <ul>
-      <li><strong>AI 处理说明</strong>：生成卡片时，您粘贴的文本会发送至 DeepSeek 生成卡片；上传的图片会发送至智谱进行识别；PDF/Word 会先在本地提取文字（扫描件转图片识别），提取出的内容同样仅用于本次生成。平台不保存您的原始资料</li>
-      <li><strong>数据存储于本地</strong>：生成的卡组与复习记录保存在您的浏览器本地（IndexedDB），仅当前设备可见；清除浏览器数据会导致记录丢失，请定期导出备份</li>
-      <li><strong>内容归您所有</strong>：您生成的所有卡组归您本人所有，本平台不主张任何权利，亦不收集、出售或共享您的个人信息</li>
-    </ul>
-    <p class="ps">本网站仅提供学习工具，不提供任何医疗服务；健康相关问题请以医院及专业医生意见为准。</p>
-    <div class="privacy-btns">
-      <button class="btn" id="privacyOk">知道了，开始使用</button>
-    </div>
-  </div>
-</div>
-
 <!-- 联系作者弹窗（意见反馈 + 求赞助占位） -->
 <div class="mask" id="contactMask" hidden>
   <div class="helpbox" role="dialog" aria-label="联系作者">
@@ -672,17 +648,17 @@
       setup(maskEl);
     };
     function setup(maskEl){
-    /* 顺序：隐私弹窗先弹 → 用户关闭后 → 再显示引导遮罩（原逻辑是引导期间藏隐私弹窗，反了） */
-    const pm=$('privacyMask');
+    /* 顺序：协议弹窗先弹 → 用户点同意/退出后 → 再显示引导遮罩 */
+    const pm=$('termsMask');
     const pmWasVisible=pm&&!pm.hidden;
     if(pmWasVisible){
-      /* 隐私弹窗正在显示：先藏引导遮罩，等用户点「知道了」/× 关闭后再放出来 */
+      /* 协议弹窗正在显示：先藏引导遮罩，等用户点「同意/不同意」后再放出来 */
       maskEl.style.display='none';
       const showTour=()=>{
         maskEl.style.display='';
         setTimeout(place,80); /* 重新定位洞 */
       };
-      const ok=$('privacyOk'),x=$('privacyX');
+      const ok=$('termsYes'),x=$('termsNo');
       if(ok)ok.addEventListener('click',showTour);
       if(x)x.addEventListener('click',showTour);
     }
@@ -915,16 +891,6 @@ helpMonth.onclick=()=>{                           /* 一月内不提醒 */
   helpMask.hidden=true;
 };
 helpOff.onclick=()=>{localStorage.setItem('mc_help_off','1');helpMask.hidden=true;};
-
-/* ========== 隐私说明弹窗（仅首次进入展示一次） ========== */
-const privacyMask=$('privacyMask');
-function closePrivacy(){privacyMask.hidden=true;}
-if(localStorage.getItem('mc_privacy_ack')!=='1'){
-  privacyMask.hidden=false;
-  localStorage.setItem('mc_privacy_ack','1');   /* 展示即记住，避免每次刷新都弹 */
-}
-$('privacyOk').onclick=closePrivacy;
-$('privacyX').onclick=closePrivacy;
 
 /* ========== 联系作者（意见反馈→后端 SMTP；求赞助占位） ========== */
 const contactMask=$('contactMask'),contactMsg=$('contactMsg'),contactSend=$('contactSend');
@@ -1632,9 +1598,9 @@ dbgTour.onclick=()=>{
   location.reload();
 };
 dbgFresh.onclick=()=>{
-  /* 模拟新用户首次进入：清引导完成标记 + 隐私弹窗已读标记 */
+  /* 模拟新用户首次进入：清引导完成标记 + 协议弹窗已读标记 */
   localStorage.removeItem('mc_tour_done');
-  localStorage.removeItem('mc_privacy_ack');
+  localStorage.removeItem('mc_terms_agree');
   location.reload();
 };
 
