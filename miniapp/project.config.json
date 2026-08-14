@@ -1,7 +1,6 @@
 {
   "miniprogramRoot": "miniprogram/",
   "cloudfunctionRoot": "cloudfunctions/",
-  "appid": "wx887b596523499ce9",
   "projectname": "medcard-miniapp",
   "compileType": "miniprogram",
   "libVersion": "3.0.0",

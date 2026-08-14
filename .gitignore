@@ -5,3 +5,4 @@ outputs/
 design-demos/
 .workbuddy/
 .vercel/
+miniapp/project.private.config.json
