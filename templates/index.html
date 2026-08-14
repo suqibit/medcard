@@ -1722,7 +1722,7 @@ importFile.onchange=async e=>{
   if(!mask)return;
   mask.hidden=false;
   document.getElementById('termsYes').onclick=()=>{
-    localStorage.setItem('mc_terms_agree','1');
+    localStorage.setItem('mc_terms_agree',String(Date.now()));
     mask.hidden=true;
   };
   document.getElementById('termsNo').onclick=()=>{
