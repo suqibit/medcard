@@ -349,7 +349,8 @@ def generate():
             }
         )
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        app.logger.error(f"generate 失败: {e}")
+        return jsonify({"error": "生成失败，请稍后重试"}), 500
 
 
 try:
@@ -402,7 +403,8 @@ def extract_pdf():
             return jsonify({"text": text[:50000], "ocr": True})
         return jsonify({"text": text[:50000]})
     except Exception as e:
-        return jsonify({"error": f"PDF 解析失败：{e}"}), 500
+        app.logger.error(f"PDF 解析失败: {e}")
+        return jsonify({"error": "PDF 解析失败，请确认文件格式后重试"}), 500
 
 
 @app.route("/extract_docx", methods=["POST"])
@@ -432,7 +434,8 @@ def extract_docx():
             return jsonify({"error": "未能提取到文字（可能是图片型 Word）"}), 400
         return jsonify({"text": text[:50000]})
     except Exception as e:
-        return jsonify({"error": f"Word 解析失败：{e}"}), 500
+        app.logger.error(f"Word 解析失败: {e}")
+        return jsonify({"error": "Word 解析失败，请确认文件格式后重试"}), 500
 
 
 IMG_EXTS = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp"}
@@ -506,7 +509,8 @@ def ocr():
     try:
         return jsonify({"text": zhipu_ocr_image(data, mime)[:50000]})
     except Exception as e:
-        return jsonify({"error": f"图片识别失败：{e}"}), 500
+        app.logger.error(f"图片识别失败: {e}")
+        return jsonify({"error": "图片识别失败，请稍后重试"}), 500
 
 
 @app.route("/feedback", methods=["POST"])
@@ -523,9 +527,11 @@ def feedback():
         send_feedback_email("用户意见反馈：\n\n" + msg)
         return jsonify({"ok": True})
     except RuntimeError as e:
-        return jsonify({"error": str(e)}), 501
+        app.logger.error(f"邮件服务错误: {e}")
+        return jsonify({"error": "邮件服务暂不可用，请稍后再试"}), 501
     except Exception as e:
-        return jsonify({"error": f"邮件发送失败：{e}"}), 500
+        app.logger.error(f"邮件发送失败: {e}")
+        return jsonify({"error": "邮件发送失败，请稍后再试"}), 500
 
 
 if __name__ == "__main__":
