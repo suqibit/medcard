@@ -617,6 +617,7 @@
       <label for="contactMsg"><span class="no">壹</span>意见反馈</label>
       <textarea id="contactMsg" placeholder="写下你的反馈、建议或遇到的问题…" style="min-height:140px"></textarea>
     </div>
+    <button class="btn-ghost" id="groupApply" style="width:100%;margin-bottom:10px">🐟 想加入内测群？点我预填申请</button>
     <div class="contact-mail">收件邮箱：<b>suqiqinak@163.com</b></div>
     <div class="help-btns">
       <button class="btn" id="contactSend">发送反馈</button>
@@ -894,6 +895,11 @@ $('contactOpen').onclick=()=>{contactMask.hidden=false;setTimeout(()=>contactMsg
 function closeContact(){contactMask.hidden=true;}
 $('contactX').onclick=closeContact;
 $('contactCancel').onclick=closeContact;
+/* 申请加入内测群：预填申请模板，用户补联系方式后走反馈通道 → 作者邮箱收集意向（够人数再开群，不冷群） */
+$('groupApply').onclick=()=>{
+  contactMsg.value='[申请加入内测群]\n我的微信/QQ：';
+  contactMsg.focus();
+};
 contactSend.onclick=async()=>{
   const msg=contactMsg.value.trim();
   if(!msg){contactMsg.focus();return;}
