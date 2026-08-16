@@ -29,7 +29,7 @@
         <view class="stat-label">卡片总数</view>
       </view>
     </view>
-    <view class="btn-primary {{actionDone ? 'disabled' : ''}}" bindtap="startReview">{{actionText}}</view>
+    <view class="btn-primary {{actionDone ? 'disabled' : ''}}" hover-class="btn-primary-hover" hover-stay-time="150" bindtap="startReview">{{actionText}}</view>
   </view>
 
   <!-- 生成区 -->
@@ -67,18 +67,18 @@
     </view>
     <view class="input-row">
       <view class="muted">自定义标签（逗号分隔，可选）</view>
-      <view class="tag-mgmt-link" bindtap="openTagMgmt">管理</view>
+      <view class="tag-mgmt-link" hover-class="tag-mgmt-link-hover" hover-stay-time="150" bindtap="openTagMgmt">管理</view>
       <input class="deck-input" value="{{customTags}}" bindinput="onTagsInput" placeholder="如 306,内科学" />
     </view>
 
-    <view class="btn-secondary" bindtap="chooseImage">
+    <view class="btn-secondary" hover-class="btn-secondary-hover" hover-stay-time="150" bindtap="chooseImage">
       {{ocrLoading ? '识别中…' : '📷 拍照/传图识别文字（今日剩 ' + ocrLeft + ' 次）'}}
     </view>
-    <view class="btn-secondary" bindtap="chooseFile">
+    <view class="btn-secondary" hover-class="btn-secondary-hover" hover-stay-time="150" bindtap="chooseFile">
       {{uploadLoading ? '解析中…' : '📄 上传 PDF / Word（今日剩 ' + uploadLeft + ' 次）'}}
     </view>
 
-    <view class="btn-primary {{loading ? 'disabled' : ''}}" bindtap="generate">
+    <view class="btn-primary {{loading ? 'disabled' : ''}}" hover-class="btn-primary-hover" hover-stay-time="150" bindtap="generate">
       {{loading ? 'AI 生成中，约 10-30 秒…' : '✨ AI 生成卡片（今日剩 ' + genLeft + ' 次）'}}
     </view>
 
@@ -99,8 +99,8 @@
         <text class="tag" wx:for="{{item.tags}}" wx:for-item="tg" wx:key="*this">{{tg}}</text>
       </view>
     </view>
-    <view class="btn-primary" bindtap="savePreview">保存这 {{cardsPreview.length}} 张卡片</view>
-    <view class="btn-secondary" bindtap="discardPreview">不要了</view>
+    <view class="btn-primary" hover-class="btn-primary-hover" hover-stay-time="150" bindtap="savePreview">保存这 {{cardsPreview.length}} 张卡片</view>
+    <view class="btn-secondary" hover-class="btn-secondary-hover" hover-stay-time="150" bindtap="discardPreview">不要了</view>
   </view>
 
   <!-- 空状态 -->
@@ -126,7 +126,7 @@
         <text class="privacy-strong">内容归您所有</text>：您生成的所有卡组归您本人所有，本平台不主张任何权利，亦不收集、出售或共享您的个人信息
       </view>
       <view class="privacy-note">本小程序仅提供学习工具，不提供任何医疗服务；健康相关问题请以医院及专业医生意见为准。</view>
-      <view class="btn-primary" bindtap="ackPrivacy">知道了，开始使用</view>
+      <view class="btn-primary" hover-class="btn-primary-hover" hover-stay-time="150" bindtap="ackPrivacy">知道了，开始使用</view>
     </view>
   </view>
 
@@ -138,7 +138,7 @@
       <view class="modal-item"><text class="privacy-strong">第 2 步 · 复习</text>：每天 10 分钟，到期的卡会自动出现；如实选择「忘记/困难/记得/简单」，系统安排下次复习</view>
       <view class="modal-item"><text class="privacy-strong">第 3 步 · 记录</text>：在底部「记录」页查看复习情况与薄弱点，越练越稳</view>
       <view class="modal-note">不堆积、断了能捡回——开始吧！</view>
-      <view class="btn-primary" bindtap="ackHelp">知道了，开始使用</view>
+      <view class="btn-primary" hover-class="btn-primary-hover" hover-stay-time="150" bindtap="ackHelp">知道了，开始使用</view>
     </view>
   </view>
 
@@ -149,7 +149,7 @@
       <view class="modal-item">生成卡片时 AI 会优先匹配这些标签（最多 30 个）</view>
       <view class="tag-input-row">
         <input class="tag-input" value="{{tagNewInput}}" bindinput="onTagNewInput" placeholder="新标签，如 306" />
-        <view class="tag-add-btn" bindtap="addTag">添加</view>
+        <view class="tag-add-btn" hover-class="tag-add-btn-hover" hover-stay-time="150" bindtap="addTag">添加</view>
       </view>
       <view class="tag-list" wx:if="{{tagList.length > 0}}">
         <view wx:for="{{tagList}}" wx:key="*this" class="tag-mgmt-item">
@@ -158,7 +158,7 @@
         </view>
       </view>
       <view class="modal-item muted" wx:else>还没有自定义标签</view>
-      <view class="btn-primary" bindtap="closeTagMgmt">完成</view>
+      <view class="btn-primary" hover-class="btn-primary-hover" hover-stay-time="150" bindtap="closeTagMgmt">完成</view>
     </view>
   </view>
 

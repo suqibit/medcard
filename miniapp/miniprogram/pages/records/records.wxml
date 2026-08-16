@@ -18,6 +18,8 @@
       wx:for="{{tagOptions}}"
       wx:key="*this"
       class="filter-tag {{activeTag === item ? 'active' : ''}}"
+      hover-class="filter-tag-hover"
+      hover-stay-time="150"
       data-tag="{{item}}"
       bindtap="onTag"
     >{{item}}</view>
@@ -39,7 +41,7 @@
     <view class="rec-tags">
       <text class="tag" wx:for="{{item.tags}}" wx:for-item="tg" wx:key="*this">{{tg}}</text>
     </view>
-    <view class="btn-secondary small" data-id="{{item.id}}" bindtap="toggleAnswer">
+    <view class="btn-secondary small" hover-class="btn-secondary-hover" hover-stay-time="150" data-id="{{item.id}}" bindtap="toggleAnswer">
       {{expanded[item.id] ? '收起答案' : '显示答案'}}
     </view>
     <view class="rec-back" wx:if="{{expanded[item.id]}}">
@@ -50,15 +52,15 @@
 
   <!-- 分页 -->
   <view class="pager" wx:if="{{totalPages > 1}}">
-    <view class="page-btn {{page <= 1 ? 'disabled' : ''}}" bindtap="onPrev">上一页</view>
+    <view class="page-btn {{page <= 1 ? 'disabled' : ''}}" hover-class="page-btn-hover" hover-stay-time="150" bindtap="onPrev">上一页</view>
     <view class="muted">{{page}} / {{totalPages}}</view>
-    <view class="page-btn {{page >= totalPages ? 'disabled' : ''}}" bindtap="onNext">下一页</view>
+    <view class="page-btn {{page >= totalPages ? 'disabled' : ''}}" hover-class="page-btn-hover" hover-stay-time="150" bindtap="onNext">下一页</view>
   </view>
 
   <!-- 复习时间说明弹窗（进入记录页时按需出现） -->
   <view class="modal-mask" wx:if="{{helpShow}}">
     <view class="modal-box">
-      <view class="modal-x" bindtap="helpClose">✕</view>
+      <view class="modal-x" hover-class="modal-x-hover" hover-stay-time="150" bindtap="helpClose">✕</view>
       <view class="modal-title">复习时间是怎么算的？</view>
       <view class="modal-item">你每次复习后选的「忘记 / 困难 / 记得 / 简单」，系统会据此安排这张卡下次出现的时间：</view>
       <view class="modal-item">
@@ -68,8 +70,8 @@
       <view class="modal-item">只有<text class="privacy-strong">到期</text>的卡才会出现在复习页；每天有复习上限，不会堆积</view>
       <view class="modal-item">断了好几天回来也不怕：系统会提示你攒了多少，慢慢跟上，<text class="privacy-strong">不会越堆越多</text></view>
       <view class="modal-note">这一切由算法自动调度（Anki 同款），你只管如实自评。</view>
-      <view class="btn-primary" bindtap="helpMonth">一月内不提醒</view>
-      <view class="btn-secondary" bindtap="helpOff">永远关闭提醒</view>
+      <view class="btn-primary" hover-class="btn-primary-hover" hover-stay-time="150" bindtap="helpMonth">一月内不提醒</view>
+      <view class="btn-secondary" hover-class="btn-secondary-hover" hover-stay-time="150" bindtap="helpOff">永远关闭提醒</view>
     </view>
   </view>
 

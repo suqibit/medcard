@@ -10,14 +10,14 @@
   <view class="card" wx:if="{{!loading && empty}}">
     <view class="center-text">🎉 今天没有需要复习的卡片</view>
     <view class="muted center-text">到期卡片会自动出现在这里；先回首页生成几张新卡吧</view>
-    <view class="btn-primary" bindtap="goHome">回首页</view>
+    <view class="btn-primary" hover-class="btn-primary-hover" hover-stay-time="150" bindtap="goHome">回首页</view>
   </view>
 
   <!-- 完成 -->
   <view class="card" wx:if="{{done}}">
     <view class="center-text done-title">{{doneMsg}}</view>
-    <view class="btn-primary" bindtap="restart">继续复习</view>
-    <view class="btn-secondary" bindtap="goHome">回首页</view>
+    <view class="btn-primary" hover-class="btn-primary-hover" hover-stay-time="150" bindtap="restart">继续复习</view>
+    <view class="btn-secondary" hover-class="btn-secondary-hover" hover-stay-time="150" bindtap="goHome">回首页</view>
   </view>
 
   <!-- 复习中 -->
@@ -26,8 +26,8 @@
 
     <!-- 模式切换：问答 / 选择题 -->
     <view class="mode-line">
-      <view class="mode-pill {{!quizModePref ? 'active' : ''}}" data-m="qa" bindtap="toggleQuizMode">问答模式</view>
-      <view class="mode-pill {{quizModePref ? 'active' : ''}}" data-m="quiz" bindtap="toggleQuizMode">选择题模式</view>
+      <view class="mode-pill {{!quizModePref ? 'active' : ''}}" hover-class="mode-pill-hover" hover-stay-time="150" data-m="qa" bindtap="toggleQuizMode">问答模式</view>
+      <view class="mode-pill {{quizModePref ? 'active' : ''}}" hover-class="mode-pill-hover" hover-stay-time="150" data-m="quiz" bindtap="toggleQuizMode">选择题模式</view>
     </view>
 
     <view class="card card-anim" wx:if="{{cardShown}}" style="{{cardH ? 'height:' + cardH + 'rpx;' : ''}}">
@@ -38,6 +38,8 @@
           wx:for="{{quiz.options}}"
           wx:key="index"
           class="quiz-opt {{quizPicked && index === quiz.answer ? 'correct' : ''}}"
+          hover-class="quiz-opt-hover"
+          hover-stay-time="150"
           data-i="{{item.index}}"
           bindtap="pickQuiz"
         >{{item.letter}}. {{item.text}}</view>
@@ -49,7 +51,7 @@
       <!-- 问答模式：正面 -->
       <block wx:if="{{!quiz && !showBack}}">
         <view class="front-text anim-in">{{front}}</view>
-        <view class="btn-primary" bindtap="showAnswer">显示答案</view>
+        <view class="btn-primary" hover-class="btn-primary-hover" hover-stay-time="150" bindtap="showAnswer">显示答案</view>
       </block>
 
       <!-- 问答模式：背面（答案+解析+关联考点） -->
@@ -67,10 +69,10 @@
     <view class="card" wx:if="{{!quiz || quizPicked}}">
       <view class="rate-label muted">这次还记得吗？</view>
       <view class="rate-row">
-        <view class="rate-btn r1" data-r="1" bindtap="rate">忘记</view>
-        <view class="rate-btn r2" data-r="2" bindtap="rate">困难</view>
-        <view class="rate-btn r3" data-r="3" bindtap="rate">记得</view>
-        <view class="rate-btn r4" data-r="4" bindtap="rate">简单</view>
+        <view class="rate-btn r1" hover-class="rate-btn-hover" hover-stay-time="150" data-r="1" bindtap="rate">忘记</view>
+        <view class="rate-btn r2" hover-class="rate-btn-hover" hover-stay-time="150" data-r="2" bindtap="rate">困难</view>
+        <view class="rate-btn r3" hover-class="rate-btn-hover" hover-stay-time="150" data-r="3" bindtap="rate">记得</view>
+        <view class="rate-btn r4" hover-class="rate-btn-hover" hover-stay-time="150" data-r="4" bindtap="rate">简单</view>
       </view>
       <view class="muted center-text">连续打卡 {{streak}} 天</view>
     </view>
@@ -90,7 +92,7 @@
         <text class="privacy-strong">内容归您所有</text>：您生成的所有卡组归您本人所有，本平台不主张任何权利，亦不收集、出售或共享您的个人信息
       </view>
       <view class="privacy-note">本小程序仅提供学习工具，不提供任何医疗服务；健康相关问题请以医院及专业医生意见为准。</view>
-      <view class="btn-primary" bindtap="ackPrivacy">知道了，开始使用</view>
+      <view class="btn-primary" hover-class="btn-primary-hover" hover-stay-time="150" bindtap="ackPrivacy">知道了，开始使用</view>
     </view>
   </view>
 

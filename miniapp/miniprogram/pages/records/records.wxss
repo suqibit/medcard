@@ -21,7 +21,7 @@
 .weak-rate.yellow { color: var(--warn); }
 .weak-rate.green { color: var(--accent); }
 
-.tag-scroll { white-space: nowrap; padding: 8rpx 24rpx; }
+.tag-scroll { white-space: nowrap; padding: 8rpx 24rpx; -webkit-overflow-scrolling: touch; }
 .filter-tag {
   display: inline-block;
   background: rgba(43, 41, 36, 0.05);
@@ -32,7 +32,7 @@
   margin-right: 14rpx;
   transition: background 0.2s, color 0.2s, transform 0.15s var(--ease-out);
 }
-.filter-tag:active { transform: scale(0.95); }
+.filter-tag-hover { transform: scale(0.95); }
 .filter-tag.active { background: var(--accent); color: #F7F3E6; box-shadow: 0 2rpx 10rpx rgba(14, 90, 74, 0.3); }
 
 /* 卡片列表：入场 stagger（wx:for 重建时动画重放） */
@@ -71,7 +71,7 @@
   margin: 0 30rpx;
   transition: background 0.2s, transform 0.15s var(--ease-out);
 }
-.page-btn:active { background: var(--accent-soft); transform: scale(0.95); }
+.page-btn-hover { background: var(--accent-soft); transform: scale(0.95); }
 .page-btn.disabled { opacity: 0.4; }
 
 /* 弹窗关闭叉号 */
@@ -84,4 +84,4 @@
   padding: 8rpx;
   transition: transform 0.2s;
 }
-.modal-x:active { transform: rotate(90deg); opacity: 0.6; }
+.modal-x-hover { transform: rotate(90deg); opacity: 0.6; }

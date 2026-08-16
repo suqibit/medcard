@@ -65,7 +65,7 @@ page {
   box-shadow: 0 4rpx 20rpx rgba(14, 90, 74, 0.28);
   transition: transform 0.15s var(--ease-out), box-shadow 0.2s var(--ease-out), background 0.2s;
 }
-.btn-primary:active { transform: scale(0.97); box-shadow: 0 2rpx 8rpx rgba(14, 90, 74, 0.3); }
+.btn-primary-hover { transform: scale(0.97); box-shadow: 0 2rpx 8rpx rgba(14, 90, 74, 0.3); }
 .btn-primary.disabled { background: #B5A894; box-shadow: none; }
 
 /* 次按钮 */
@@ -80,7 +80,7 @@ page {
   margin: 12rpx 24rpx;
   transition: background 0.2s, transform 0.15s var(--ease-out);
 }
-.btn-secondary:active { background: var(--accent-soft); transform: scale(0.97); }
+.btn-secondary-hover { background: var(--accent-soft); transform: scale(0.97); }
 
 /* 危险按钮 */
 .btn-danger {
@@ -93,7 +93,7 @@ page {
   margin: 12rpx 24rpx;
   transition: transform 0.15s var(--ease-out);
 }
-.btn-danger:active { transform: scale(0.97); }
+.btn-danger-hover { transform: scale(0.97); }
 
 /* 标签 */
 .tag {
@@ -182,6 +182,7 @@ page {
   margin: 0 40rpx;
   max-height: 80vh;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   box-shadow: var(--shadow-float);
   animation: sheetIn 0.35s var(--ease-pop);
 }

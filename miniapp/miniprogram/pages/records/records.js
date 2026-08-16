@@ -7,13 +7,11 @@ const PAGE_SIZE = 10;
 
 Page({
   data: {
-    loading: true,
     tagOptions: ['全部'],
     activeTag: '全部',
     cards: [],        // 当前页卡片（含展示字段）
     page: 1,
     totalPages: 1,
-    total: 0,
     weakList: [],     // 薄弱点分析
     expanded: {},     // id -> true（展开答案）
     helpShow: false   // 复习时间说明弹窗
@@ -51,9 +49,7 @@ Page({
     const tagSet = ['全部'].concat(Array.from(new Set(cards.reduce((a, c) => a.concat(c.tags || []), []).concat(tags))));
     this._allCards = cards;
     this.setData({
-      loading: false,
-      tagOptions: tagSet.slice(0, 30),
-      total: cards.length
+      tagOptions: tagSet.slice(0, 30)
     });
     this.renderWeak(cards);
     this.applyFilter();

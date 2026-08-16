@@ -11,13 +11,11 @@ Page({
     empty: false,
     queueTotal: 0,
     idx: 0,
-    card: null,          // 当前卡对象
     front: '',
     back: '',
     tags: [],
     source: '',
     quiz: null,          // 选择题数据
-    quizMode: false,
     quizModePref: false, // 用户选择的复习模式（问答/选择题）
     quizPicked: false,
     quizCorrect: null,
@@ -25,7 +23,6 @@ Page({
     done: false,
     doneMsg: '',
     streak: 0,
-    errMsg: '',
     privacyShow: false,
     cardShown: true,   // 纯视觉：换卡时 false→true 重建节点，驱动卡片入场动画
     cardH: ''          // 纯视觉：模式切换时的高度过渡（'' = auto）
@@ -116,15 +113,14 @@ Page({
       answerLetter: 'ABCDE'[card.quiz.answer],
       options: card.quiz.options.map((t, idx) => ({ letter: 'ABCDE'[idx], text: t, index: idx }))
     } : null;
+    this._card = card;
     const patch = {
       idx: i,
-      card,
       front: card.front || '',
       back: card.back || '',
       tags: card.tags || [],
       source: card.source || '',
       quiz,
-      quizMode: !!quiz,
       quizPicked: false,
       quizCorrect: null,
       showBack: false,
@@ -155,7 +151,7 @@ Page({
   // ---------- 评级：1忘记 2困难 3记得 4简单（ts-fsrs 6.x 枚举，Manual=0 无 key） ----------
   rate(e) {
     const r = +e.currentTarget.dataset.r;
-    const card = this.data.card;
+    const card = this._card;
     if (!card) return;
     const old = card.fsrsCard || fsrs.newCard();
     const nf = fsrs.schedule(old, r);
@@ -181,7 +177,7 @@ Page({
   },
 
   restart() {
-    this.setData({ done: false, errMsg: '' });
+    this.setData({ done: false });
     this.buildQueue();
   },
   goHome() {

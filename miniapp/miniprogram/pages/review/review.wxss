@@ -18,7 +18,7 @@
   margin: 0 8rpx;
   transition: background 0.2s var(--ease-out), color 0.2s, transform 0.15s var(--ease-out);
 }
-.mode-pill:active { transform: scale(0.95); }
+.mode-pill-hover { transform: scale(0.95); }
 .mode-pill.active {
   background: var(--accent);
   color: #F7F3E6;
@@ -78,7 +78,7 @@
   transition: border-color 0.15s, background 0.15s, transform 0.12s var(--ease-out);
   animation: fadeUp 0.3s var(--ease-out) backwards;
 }
-.quiz-opt:active { border-color: var(--accent); background: rgba(14, 90, 74, 0.04); transform: translateX(4rpx); }
+.quiz-opt-hover { border-color: var(--accent); background: rgba(14, 90, 74, 0.04); transform: translateX(4rpx); }
 .quiz-opt.correct {
   background: var(--accent-soft);
   border-color: var(--accent);
@@ -102,7 +102,7 @@
   color: #F7F3E6;
   transition: transform 0.15s var(--ease-out), box-shadow 0.2s;
 }
-.rate-btn:active { transform: scale(0.92); }
+.rate-btn-hover { transform: scale(0.92); }
 .r1 { background: var(--danger); }
 .r2 { background: var(--warn); }
 .r3 { background: var(--accent); }

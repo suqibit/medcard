@@ -115,7 +115,7 @@
   border-radius: var(--r-sm);
   transition: background 0.2s;
 }
-.tag-mgmt-link:active { background: var(--accent-soft); }
+.tag-mgmt-link-hover { background: var(--accent-soft); }
 
 /* 标签管理弹窗 */
 .tag-input-row { display: flex; align-items: center; margin: 12rpx 0 16rpx; }
@@ -136,7 +136,7 @@
   margin-left: 12rpx;
   transition: background 0.2s, transform 0.15s var(--ease-out);
 }
-.tag-add-btn:active { background: var(--accent-2); transform: scale(0.95); }
+.tag-add-btn-hover { background: var(--accent-2); transform: scale(0.95); }
 .tag-list { margin-bottom: 16rpx; }
 .tag-mgmt-item {
   display: flex;
